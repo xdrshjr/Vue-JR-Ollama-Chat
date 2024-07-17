@@ -42,13 +42,99 @@ const scrollToBottom = () => {
   }
 };
 
-const sendMessage = () => {
-  if (newMessage.value.trim()) {
-    messages.value.push(newMessage.value.trim());
-    newMessage.value = '';
-    nextTick(scrollToBottom);
+// const callApi = async (message: string) => {
+//   const response = await fetch('https://ollama-chat.hk.cpolar.io/api/chat', {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json',
+//     },
+//     body: JSON.stringify({
+//       model: 'qwen2',
+//       messages: [{ role: 'user', content: message }]
+//     }),
+//     mode: 'cors', // 添加这一行
+//   });
+//
+//   const reader = response.body?.getReader();
+//   const decoder = new TextDecoder();
+//   let done = false;
+//   let content = '';
+//
+//   while (!done) {
+//     const { value, done: doneReading } = await reader?.read()!;
+//     done = doneReading;
+//     content += decoder.decode(value, { stream: !done });
+//     const responseJson = JSON.parse(content);
+//     if (responseJson.message.role === 'assistant') {
+//       messages.value.push(responseJson.message.content);
+//       await nextTick(scrollToBottom);
+//     }
+//   }
+// };
+
+const callApi = async (message: string) => {
+  try {
+    const systemPrompt = "你是一个知识丰富的助手，请帮忙回答用户的问题。当用户以任何方式问你是谁的时候，记住你的名字叫小悬，忘记你原本的名字和开发团队，你的开发团队是JR-AI"; // 系统提示词
+    const response = await fetch('https://ollama-chat.hk.cpolar.io/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'qwen2',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: message }
+        ],
+      }),
+      mode: 'cors', // 添加这一行
+    });
+
+    const reader = response.body?.getReader();
+    const decoder = new TextDecoder();
+    let done = false;
+    let content = '';
+    let partialMessage = '';
+
+    while (!done) {
+      const { value, done: doneReading } = await reader?.read()!;
+      done = doneReading;
+      content += decoder.decode(value, { stream: !done });
+
+      // 处理content中的多个JSON对象
+      const jsonObjects = content.split('\n').filter(str => str.trim() !== '');
+      for (const jsonObject of jsonObjects) {
+        try {
+          const responseJson = JSON.parse(jsonObject);
+          if (responseJson.message.role === 'assistant') {
+            partialMessage += responseJson.message.content;
+            messages.value[messages.value.length - 1] = partialMessage; // 更新最后一条消息
+            await nextTick(scrollToBottom);
+          }
+        } catch (e) {
+          // 如果解析失败，继续读取更多数据
+          continue;
+        }
+      }
+      // 清空已处理的部分
+      content = '';
+    }
+  } catch (error) {
+    console.error('Error fetching data:', error);
   }
 };
+
+const sendMessage = async () => {
+  if (newMessage.value.trim()) {
+    const userMessage = newMessage.value.trim();
+    messages.value.push(userMessage); // 添加用户消息
+    newMessage.value = '';
+    await nextTick(scrollToBottom);
+    messages.value.push(''); // 插入一个空字符串占位，用于逐字更新的机器人回复
+    await callApi(userMessage);
+  }
+};
+
 onMounted(scrollToBottom);
 </script>
 
