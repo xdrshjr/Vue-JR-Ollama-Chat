@@ -5,8 +5,7 @@
       <el-main>
         <div class="chat-container">
           <div class="result-box" ref="resultBox">
-            <div v-for="(message, index) in messages" :key="index" class="message">
-              {{ message }}
+            <div v-for="(message, index) in messages" :key="index" class="message" v-html="message">
             </div>
           </div>
           <div class="chat-input">
@@ -29,9 +28,10 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, nextTick, onMounted } from 'vue';
+import {ref, nextTick, onMounted} from 'vue';
+import { marked } from 'marked';
 
-const messages = ref<string[]>(['你好，我是AI聊天助手.']);
+const messages = ref<any[]>(['你好，我是AI聊天助手.']);
 const newMessage = ref<string>('');
 
 const resultBox = ref<HTMLElement | null>(null);
@@ -41,36 +41,6 @@ const scrollToBottom = () => {
     resultBox.value.scrollTop = resultBox.value.scrollHeight;
   }
 };
-
-// const callApi = async (message: string) => {
-//   const response = await fetch('https://ollama-chat.hk.cpolar.io/api/chat', {
-//     method: 'POST',
-//     headers: {
-//       'Content-Type': 'application/json',
-//     },
-//     body: JSON.stringify({
-//       model: 'qwen2',
-//       messages: [{ role: 'user', content: message }]
-//     }),
-//     mode: 'cors', // 添加这一行
-//   });
-//
-//   const reader = response.body?.getReader();
-//   const decoder = new TextDecoder();
-//   let done = false;
-//   let content = '';
-//
-//   while (!done) {
-//     const { value, done: doneReading } = await reader?.read()!;
-//     done = doneReading;
-//     content += decoder.decode(value, { stream: !done });
-//     const responseJson = JSON.parse(content);
-//     if (responseJson.message.role === 'assistant') {
-//       messages.value.push(responseJson.message.content);
-//       await nextTick(scrollToBottom);
-//     }
-//   }
-// };
 
 const callApi = async (message: string) => {
   try {
@@ -108,7 +78,7 @@ const callApi = async (message: string) => {
           const responseJson = JSON.parse(jsonObject);
           if (responseJson.message.role === 'assistant') {
             partialMessage += responseJson.message.content;
-            messages.value[messages.value.length - 1] = partialMessage; // 更新最后一条消息
+            messages.value[messages.value.length - 1] = <string>marked(partialMessage); // 更新最后一条消息并解析 Markdown
             await nextTick(scrollToBottom);
           }
         } catch (e) {
@@ -127,7 +97,7 @@ const callApi = async (message: string) => {
 const sendMessage = async () => {
   if (newMessage.value.trim()) {
     const userMessage = newMessage.value.trim();
-    messages.value.push(userMessage); // 添加用户消息
+    messages.value.push(marked(userMessage)); // 添加用户消息并解析 Markdown
     newMessage.value = '';
     await nextTick(scrollToBottom);
     messages.value.push(''); // 插入一个空字符串占位，用于逐字更新的机器人回复
@@ -148,8 +118,8 @@ onMounted(scrollToBottom);
   flex-direction: column;
   height: 60rem;
   gap: 10px;
-  width: 60vw; /* 添加这一行 */
-  margin: 0 auto; /* 添加这一行，使其居中 */
+  width: 60vw;
+  margin: 0 auto;
 }
 
 .result-box {
@@ -169,6 +139,7 @@ onMounted(scrollToBottom);
   border-radius: 4px;
   border: 1px solid #97989a;
   color: #4c4c4c;
+  word-wrap: break-word; /* 添加这一行 */
 }
 
 .chat-input {
@@ -180,6 +151,7 @@ onMounted(scrollToBottom);
   border-radius: 5px;
   background: #f6f5f5;
 }
+
 .chat-input .input-box {
   width: 100%;
   margin-bottom: 1rem;
@@ -194,8 +166,8 @@ onMounted(scrollToBottom);
 @media (max-width: 768px) {
   .chat-container {
     height: 70vh;
-    width: 70vw; /* 添加这一行 */
-    margin: 0 auto; /* 添加这一行，使其居中 */
+    width: 70vw;
+    margin: 0 auto;
   }
 
   .result-box {
