@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from './components/HelloWorld.vue'
+import MenuBar from "@/components/MenuBar.vue";
 </script>
 
 <template>
+  <div class="container_bar">
+    <MenuBar msg=""></MenuBar>
+  </div>
   <div class="container">
     <header>
       <div class="left-section">
-        <img alt="Vue logo" class="logo" src="@/assets/logo.png" />
-        <HelloWorld msg="JRchat" />
+        <!-- Your content here -->
       </div>
       <div class="right-section">
         <nav>
@@ -17,7 +20,6 @@ import HelloWorld from './components/HelloWorld.vue'
         </nav>
       </div>
     </header>
-
     <main>
       <RouterView />
     </main>
@@ -25,12 +27,25 @@ import HelloWorld from './components/HelloWorld.vue'
 </template>
 
 <style scoped>
+.container_bar {
+  display: flex;
+  flex-direction: column;
+  width: 100vw; /* Ensure container takes full viewport width */
+  box-sizing: border-box;
+  position: fixed; /* Keep MenuBar at the top */
+  top: 0;
+  left: 0;
+  z-index: 1000; /* Ensure it's above other content */
+}
+
+/* Add padding to the top of the container to avoid overlap with fixed MenuBar */
 .container {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  width: 100%; /* Ensure container takes full width */
+  width: 100%;
   box-sizing: border-box;
+  padding-top: 20px; /* Adjust this value based on MenuBar height */
 }
 
 header {
@@ -50,7 +65,7 @@ header {
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 1rem; /* Add this line to create space between img and HelloWorld */
+  gap: 1rem;
   margin-left: 2%;
 }
 
@@ -60,9 +75,9 @@ header {
 }
 
 .logo {
-  width: 50px; /* Adjust as needed */
+  width: 50px;
   height: 50px;
-  align-self: center; /* Centers the logo vertically */
+  align-self: center;
 }
 
 nav {
@@ -108,7 +123,7 @@ main {
   .logo {
     width: 50px;
     height: 50px;
-    align-self: center; /* Centers the logo vertically */
+    align-self: center;
   }
 
   nav {
@@ -128,8 +143,8 @@ main {
   }
 
   .logo {
-    width: 50px;
-    height: 50px;
+    width: 10px;
+    height: 10px;
   }
 
   nav {
@@ -137,7 +152,7 @@ main {
   }
 
   main {
-    height: 80%;
+    height: 100%;
     justify-content: center;
   }
 }
@@ -155,7 +170,7 @@ main {
   .logo {
     width: 80px;
     height: 80px;
-    align-self: center; /* Centers the logo vertically */
+    align-self: center;
   }
 
   main {
