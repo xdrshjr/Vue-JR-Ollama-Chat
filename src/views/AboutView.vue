@@ -17,7 +17,7 @@
               ></div>
             </div>
             <div v-if="messages.some(message => message.loading)" class="progress-container">
-              <el-progress type="line" :percentage="messages.find(message => message.loading)?.progress || 0"></el-progress>
+              <el-progress :percentage="messages.find(message => message.loading)?.progress || 0"></el-progress>
             </div>
           </div>
           <div class="chat-input">
@@ -27,11 +27,15 @@
                 class="input-box"
                 placeholder="请输入您的问题"
                 show-word-limit
-                type="textarea"
+                type="text"
                 resize="none"
-                :autosize="{ minRows: 8, maxRows: 8 }"
+                :autosize="{ minRows: 1, maxRows: 8 }"
+                @keyup.enter="sendMessage"
             />
-            <el-button type="primary" class="send-button" @click="sendMessage">Send</el-button>
+            <div class="button-box">
+              <el-button type="primary" class="send-button" @click="sendMessage" color="#626aef">发送</el-button>
+              <el-button type="primary" class="clear-button" @click="clearMessages" color="#626aef">清除</el-button>
+            </div>
           </div>
         </div>
       </el-main>
@@ -43,7 +47,7 @@
 import { ref, nextTick, onMounted } from 'vue';
 import { marked } from 'marked';
 
-const messages = ref<any[]>([{ role: 'assistant', content: '你好，我是AI聊天助手.', loading: false, progress: 0 }]);
+const messages = ref<any[]>([{ role: 'assistant', content: '你好，我是AI聊天助手小悬，有什么可以帮到你的呢.', loading: false, progress: 0 }]);
 const newMessage = ref<string>('');
 
 const resultBox = ref<HTMLElement | null>(null);
@@ -106,6 +110,21 @@ const callApi = async (message: string) => {
   }
 };
 
+const clearMessages = async () => {
+  try {
+    await fetch('https://your-clear-api-endpoint', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ action: 'clear' }),
+    });
+    messages.value = [];
+  } catch (error) {
+    console.error('Error clearing messages:', error);
+  }
+};
+
 const sendMessage = async () => {
   if (newMessage.value.trim()) {
     const userMessage = newMessage.value.trim();
@@ -130,7 +149,7 @@ onMounted(scrollToBottom);
   flex-direction: column;
   height: 60rem;
   gap: 10px;
-  width: 60vw;
+  width: 70vw;
   margin: 0 auto;
 }
 
@@ -146,7 +165,6 @@ onMounted(scrollToBottom);
 
 .message-container {
   display: flex;
-  align-items: center;
   margin-bottom: 5px;
 }
 
@@ -189,46 +207,68 @@ onMounted(scrollToBottom);
 }
 
 .chat-input {
-  position: relative;
-  height: 30rem;
-  padding: 1rem;
-  box-sizing: border-box;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background: #f6f5f5;
+  height: 10vh;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.send-button {
+  width: 100%;
+  margin-left: 5px;
+  height: 50%;
+}
+
+.clear-button {
+  width: 100%;
+  margin-left: 5px;
+  margin-top: 15px;
+  height: 50%;
 }
 
 .chat-input .input-box {
   width: 100%;
-  margin-bottom: 1rem;
+  height: 90px;
 }
 
-.chat-input .send-button {
-  position: absolute;
-  bottom: 1rem;
-  right: 1rem;
+.button-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 80%; /* 使按钮盒子占满父容器的高度 */
 }
 
 .progress-container {
-  width: 100%;
   padding: 0 1rem;
   box-sizing: border-box;
   margin-top: 10px;
+  margin-left: 5%;
 }
 
 @media (max-width: 768px) {
   .chat-container {
-    height: 70vh;
-    width: 70vw;
+    height: 80vh;
+    width: 80vw;
     margin: 0 auto;
+    display: flex;
+    flex-direction: column;
   }
 
   .result-box {
-    height: 70vh;
+    height: 80%;
   }
 
   .chat-input {
-    height: 30vh;
+    height: 20%;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .send-button {
+    margin-left: 5px;
   }
 }
 </style>

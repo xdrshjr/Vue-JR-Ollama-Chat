@@ -29,6 +29,8 @@ import HelloWorld from './components/HelloWorld.vue'
   display: flex;
   flex-direction: column;
   height: 100vh;
+  width: 100%; /* Ensure container takes full width */
+  box-sizing: border-box;
 }
 
 header {
@@ -107,6 +109,27 @@ main {
     width: 50px;
     height: 50px;
     align-self: center; /* Centers the logo vertically */
+  }
+
+  nav {
+    font-size: 0.8rem;
+  }
+
+  main {
+    height: 80%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 600px) {
+  .left-section, .right-section {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .logo {
+    width: 50px;
+    height: 50px;
   }
 
   nav {
