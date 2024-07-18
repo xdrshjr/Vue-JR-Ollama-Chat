@@ -1,83 +1,86 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
 import MenuBar from "@/components/MenuBar.vue";
+import LeftMenuBar from "@/components/LeftMenuBar.vue";
+import BottomMenuBar from "@/components/BottomMenuBar.vue";
 </script>
 
 <template>
-  <div class="container_bar">
-    <MenuBar msg=""></MenuBar>
-  </div>
-  <div class="container">
-    <header>
-      <div class="left-section">
-        <!-- Your content here -->
-      </div>
-      <div class="right-section">
-        <nav>
-          <RouterLink to="/about">聊天</RouterLink>
-          <RouterLink to="/home">说明</RouterLink>
-        </nav>
-      </div>
-    </header>
-    <main>
-      <RouterView />
-    </main>
+  <div class="common-layout">
+    <el-container>
+      <el-header class="menu-bar">
+        <MenuBar msg=""></MenuBar>
+      </el-header>
+      <el-container class="main-container">
+        <el-aside class="left-section">
+          <LeftMenuBar></LeftMenuBar>
+        </el-aside>
+        <el-main class="right-section">
+          <RouterView />
+        </el-main>
+      </el-container>
+      <el-footer class="bottom-menu-bar">
+        <BottomMenuBar></BottomMenuBar>
+      </el-footer>
+    </el-container>
   </div>
 </template>
 
 <style scoped>
-.container_bar {
-  display: flex;
-  flex-direction: column;
-  width: 100vw; /* Ensure container takes full viewport width */
-  box-sizing: border-box;
+.menu-bar {
+  width: 100vw; /* Ensure MenuBar takes full viewport width */
   position: fixed; /* Keep MenuBar at the top */
   top: 0;
   left: 0;
   z-index: 1000; /* Ensure it's above other content */
+  box-sizing: border-box;
+  padding: 0; /* Reset padding to ensure full width */
 }
 
-/* Add padding to the top of the container to avoid overlap with fixed MenuBar */
-.container {
+.main-container {
   display: flex;
-  flex-direction: column;
   height: 100vh;
   width: 100%;
   box-sizing: border-box;
-  padding-top: 20px; /* Adjust this value based on MenuBar height */
+  padding-top: 56px; /* Adjust this value based on MenuBar height */
 }
 
-header {
+.left-section {
+  width: 200px; /* Fixed width for left section */
+  height: calc(100vh - 56px); /* Full height minus MenuBar height */
+  position: fixed; /* Keep left-section fixed */
+  top: 56px; /* Adjust this value based on MenuBar height */
+  left: 0;
+  background-color: #292828; /* Background color for left section */
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1); /* Optional shadow for visual separation */
   display: flex;
-  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+  border-right: 1px solid #97989a;
 }
 
 .right-section {
+  margin-left: 50px; /* Same width as left-section */
+  width: calc(100% - 50px);
+  padding: 0.2rem; /* Optional padding for main content */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+
 }
 
-.left-section {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  margin-left: 2%;
-}
-
-.right-section {
-  width: 100rpx;
-  margin-left: auto;
-}
-
-.logo {
-  width: 50px;
-  height: 50px;
-  align-self: center;
+.bottom-menu-bar {
+  display: none; /* Hidden by default */
+  width: 100vw;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 1000;
+  box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+  background-color: #292828;
 }
 
 nav {
@@ -105,76 +108,56 @@ nav a:first-of-type {
   border: 0;
 }
 
-main {
-  flex: 1;
-  width: 100%;
-}
-
+/* Responsive adjustments */
 @media (max-width: 1024px) {
-  header {
-    flex-direction: column;
-    height: 15%;
+  .left-section {
+    width: 150px;
   }
-
-  .left-section, .right-section {
-    width: 100%;
-  }
-
-  .logo {
-    width: 50px;
-    height: 50px;
-    align-self: center;
+  .right-section {
+    margin-left: 150px;
+    width: calc(100% - 150px);
   }
 
   nav {
     font-size: 0.8rem;
-  }
-
-  main {
-    height: 80%;
-    justify-content: center;
   }
 }
 
 @media (max-width: 600px) {
-  .left-section, .right-section {
-    width: 100%;
-    margin-left: 0;
+  .main-container {
+    width: 100%; /* Ensure main-container takes full width on mobile */
+    flex-direction: column; /* Stack left and right sections vertically */
   }
 
-  .logo {
-    width: 10px;
-    height: 10px;
+  .left-section {
+    display: none; /* Hide left-section on mobile */
+  }
+
+  .right-section {
+    margin-left: 0;
+    width: 100%; /* Ensure right-section takes full width on mobile */
+  }
+
+  .bottom-menu-bar {
+    display: block; /* Show bottom menu bar on mobile */
   }
 
   nav {
     font-size: 0.8rem;
   }
-
-  main {
-    height: 100%;
-    justify-content: center;
-  }
 }
 
 @media (min-width: 600px) {
-  header {
-    height: 10%;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    align-items: stretch;
+  .left-section {
+    width: 200px;
+  }
+  .right-section {
+    margin-left: 200px;
+    width: calc(100% - 200px);
   }
 
-  .logo {
-    width: 80px;
-    height: 80px;
-    align-self: center;
-  }
-
-  main {
-    height: 90%;
+  nav {
+    font-size: 1rem;
   }
 }
 </style>

@@ -27,7 +27,7 @@ defineProps<{
           src="/logo.png"
           alt="Element logo"
       />
-      <p style="font-size: 18px; margin-left: 5px">小悬AI助手</p>
+      <p style="font-size: 18px; margin-left: 5px">小悬AI</p>
     </el-menu-item>
     <div class="flex-grow" />
     <el-menu-item index="1">AI工具</el-menu-item>

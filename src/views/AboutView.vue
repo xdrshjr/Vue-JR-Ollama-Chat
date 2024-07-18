@@ -1,7 +1,7 @@
 <template>
   <div class="common-layout">
     <el-container>
-      <el-main>
+      <el-main class="el-main-class">
         <div class="chat-container">
           <div class="result-box" ref="resultBox">
             <div
@@ -140,27 +140,33 @@ onMounted(scrollToBottom);
 </script>
 
 <style scoped>
+.el-main-class {
+  padding: 0;
+}
+
 .common-layout {
   height: 100vh;
+  width: 85vw;
+  display: flex;
+  flex-direction: column;
 }
 
 .chat-container {
   display: flex;
   flex-direction: column;
-  height: 60rem;
-  gap: 10px;
-  width: 70vw;
-  margin: 0 auto;
+  height: calc(90vh - 8vh);
+  width: 100%;
+  margin: 0;
 }
 
 .result-box {
-  height: 80rem;
   flex-grow: 1;
   padding: 10px;
   border: 1px solid #dcdfe6;
   border-radius: 4px;
-  overflow-y: auto;
   background-color: #f6f5f5;
+  overflow-y: auto;
+  overflow-x: auto;
 }
 
 .message-container {
@@ -169,7 +175,8 @@ onMounted(scrollToBottom);
 }
 
 .user-message-container {
-  justify-content: flex-end;
+  justify-content: flex-start;
+  flex-direction: row-reverse;
 }
 
 .assistant-message-container {
@@ -207,11 +214,18 @@ onMounted(scrollToBottom);
 }
 
 .chat-input {
+  position: fixed;
+  bottom: 0;
   height: 10vh;
   display: flex;
   flex-wrap: nowrap;
   justify-content: space-between;
   align-items: center;
+  background-color: #353535;
+  padding: 10px;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  left: 200px;
+  right: 0;
 }
 
 .send-button {
@@ -223,20 +237,22 @@ onMounted(scrollToBottom);
 .clear-button {
   width: 100%;
   margin-left: 5px;
-  margin-top: 15px;
   height: 50%;
 }
 
 .chat-input .input-box {
   width: 100%;
-  height: 90px;
+  min-height: 60px;
 }
 
 .button-box {
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 80%; /* 使按钮盒子占满父容器的高度 */
+  justify-content: center;
+  height: 100%;
+  flex-wrap: nowrap;
+  align-items: center;
+  align-content: space-between;
+  flex-direction: row;
 }
 
 .progress-container {
@@ -247,28 +263,40 @@ onMounted(scrollToBottom);
 }
 
 @media (max-width: 768px) {
+  .common-layout {
+    height: 100vh;
+  }
+
   .chat-container {
-    height: 80vh;
-    width: 80vw;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
+    height: calc(80vh - 50px);
+    width: 100%;
+    overflow: hidden;
   }
 
   .result-box {
-    height: 80%;
+    height: 100%;
   }
 
   .chat-input {
-    height: 20%;
+    height: 8vh;
     display: flex;
     flex-wrap: nowrap;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 60px;
+    left: 0;
   }
 
   .send-button {
     margin-left: 5px;
+  }
+
+  .assistant-message {
+    background-color: #373737;
+    align-self: flex-start;
+    text-align: left;
+    margin-right: 10px;
+    max-width: 80%;
   }
 }
 </style>
