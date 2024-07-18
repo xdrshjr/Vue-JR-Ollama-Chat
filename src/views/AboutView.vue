@@ -1,11 +1,23 @@
 <template>
   <div class="common-layout">
     <el-container>
-      <!--        <el-aside width="20px">Aside</el-aside>-->
       <el-main>
         <div class="chat-container">
           <div class="result-box" ref="resultBox">
-            <div v-for="(message, index) in messages" :key="index" class="message" v-html="message">
+            <div
+                v-for="(message, index) in messages"
+                :key="index"
+                :class="['message-container', message.role === 'user' ? 'user-message-container' : 'assistant-message-container']"
+            >
+              <img v-if="message.role === 'user'" src="/user.png" class="avatar" />
+              <img v-if="message.role === 'assistant'" src="/robot.png" class="avatar" />
+              <div
+                  :class="['message', message.role === 'user' ? 'user-message' : 'assistant-message']"
+                  v-html="message.content"
+              ></div>
+            </div>
+            <div v-if="messages.some(message => message.loading)" class="progress-container">
+              <el-progress type="line" :percentage="messages.find(message => message.loading)?.progress || 0"></el-progress>
             </div>
           </div>
           <div class="chat-input">
@@ -16,8 +28,8 @@
                 placeholder="请输入您的问题"
                 show-word-limit
                 type="textarea"
-                resize='none'
-                :autosize="{ minRows: 8, maxRows: 8}"
+                resize="none"
+                :autosize="{ minRows: 8, maxRows: 8 }"
             />
             <el-button type="primary" class="send-button" @click="sendMessage">Send</el-button>
           </div>
@@ -28,10 +40,10 @@
 </template>
 
 <script lang="ts" setup>
-import {ref, nextTick, onMounted} from 'vue';
+import { ref, nextTick, onMounted } from 'vue';
 import { marked } from 'marked';
 
-const messages = ref<any[]>(['你好，我是AI聊天助手.']);
+const messages = ref<any[]>([{ role: 'assistant', content: '你好，我是AI聊天助手.', loading: false, progress: 0 }]);
 const newMessage = ref<string>('');
 
 const resultBox = ref<HTMLElement | null>(null);
@@ -57,7 +69,7 @@ const callApi = async (message: string) => {
           { role: 'user', content: message }
         ],
       }),
-      mode: 'cors', // 添加这一行
+      mode: 'cors',
     });
 
     const reader = response.body?.getReader();
@@ -71,24 +83,24 @@ const callApi = async (message: string) => {
       done = doneReading;
       content += decoder.decode(value, { stream: !done });
 
-      // 处理content中的多个JSON对象
       const jsonObjects = content.split('\n').filter(str => str.trim() !== '');
       for (const jsonObject of jsonObjects) {
         try {
           const responseJson = JSON.parse(jsonObject);
           if (responseJson.message.role === 'assistant') {
             partialMessage += responseJson.message.content;
-            messages.value[messages.value.length - 1] = <string>marked(partialMessage); // 更新最后一条消息并解析 Markdown
+            messages.value[messages.value.length - 1].content = marked(partialMessage);
+            messages.value[messages.value.length - 1].progress = done ? 100 : messages.value[messages.value.length - 1].progress + 10;
             await nextTick(scrollToBottom);
           }
         } catch (e) {
-          // 如果解析失败，继续读取更多数据
           continue;
         }
       }
-      // 清空已处理的部分
       content = '';
     }
+
+    messages.value[messages.value.length - 1].loading = false;
   } catch (error) {
     console.error('Error fetching data:', error);
   }
@@ -97,10 +109,10 @@ const callApi = async (message: string) => {
 const sendMessage = async () => {
   if (newMessage.value.trim()) {
     const userMessage = newMessage.value.trim();
-    messages.value.push(marked(userMessage)); // 添加用户消息并解析 Markdown
+    messages.value.push({ role: 'user', content: marked(userMessage), loading: false, progress: 0 });
     newMessage.value = '';
     await nextTick(scrollToBottom);
-    messages.value.push(''); // 插入一个空字符串占位，用于逐字更新的机器人回复
+    messages.value.push({ role: 'assistant', content: '', loading: true, progress: 0 });
     await callApi(userMessage);
   }
 };
@@ -132,14 +144,48 @@ onMounted(scrollToBottom);
   background-color: #f6f5f5;
 }
 
-.message {
+.message-container {
+  display: flex;
+  align-items: center;
   margin-bottom: 5px;
+}
+
+.user-message-container {
+  justify-content: flex-end;
+}
+
+.assistant-message-container {
+  justify-content: flex-start;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.message {
   padding: 10px;
-  background-color: #f6f5f5;
+  background-color: #d1d1d1;
   border-radius: 4px;
   border: 1px solid #97989a;
-  color: #4c4c4c;
-  word-wrap: break-word; /* 添加这一行 */
+  color: #ffffff;
+  word-wrap: break-word;
+}
+
+.user-message {
+  background-color: #293e7b;
+  align-self: flex-end;
+  text-align: right;
+  margin-left: 10px;
+}
+
+.assistant-message {
+  background-color: #373737;
+  align-self: flex-start;
+  text-align: left;
+  margin-right: 10px;
 }
 
 .chat-input {
@@ -161,6 +207,13 @@ onMounted(scrollToBottom);
   position: absolute;
   bottom: 1rem;
   right: 1rem;
+}
+
+.progress-container {
+  width: 100%;
+  padding: 0 1rem;
+  box-sizing: border-box;
+  margin-top: 10px;
 }
 
 @media (max-width: 768px) {
