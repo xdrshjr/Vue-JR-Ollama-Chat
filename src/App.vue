@@ -43,6 +43,7 @@ import BottomMenuBar from "@/components/BottomMenuBar.vue";
   width: 100%;
   box-sizing: border-box;
   padding-top: 56px; /* Adjust this value based on MenuBar height */
+  background-color: #393838;
 }
 
 .left-section {
@@ -127,6 +128,7 @@ nav a:first-of-type {
   .main-container {
     width: 100%; /* Ensure main-container takes full width on mobile */
     flex-direction: column; /* Stack left and right sections vertically */
+    background-color: #393838;
   }
 
   .left-section {

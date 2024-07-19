@@ -30,7 +30,8 @@
                 type="text"
                 resize="none"
                 :autosize="{ minRows: 1, maxRows: 8 }"
-                @keyup.enter="sendMessage"
+                @keyup.enter="handleEnter"
+                @keydown.shift.enter.native.prevent="insertNewLine"
             />
             <div class="button-box">
               <el-button type="primary" class="send-button" @click="sendMessage" color="#626aef">发送</el-button>
@@ -55,6 +56,12 @@ const resultBox = ref<HTMLElement | null>(null);
 const scrollToBottom = () => {
   if (resultBox.value) {
     resultBox.value.scrollTop = resultBox.value.scrollHeight;
+  }
+};
+
+const handleEnter = (event: KeyboardEvent) => {
+  if (!event.shiftKey) {
+    sendMessage();
   }
 };
 
@@ -136,6 +143,16 @@ const sendMessage = async () => {
   }
 };
 
+const insertNewLine = (event: KeyboardEvent) => {
+  const textarea = event.target as HTMLTextAreaElement;
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  newMessage.value = newMessage.value.substring(0, start) + '\n' + newMessage.value.substring(end);
+  nextTick(() => {
+    textarea.selectionStart = textarea.selectionEnd = start + 1;
+  });
+};
+
 onMounted(scrollToBottom);
 </script>
 
@@ -146,7 +163,7 @@ onMounted(scrollToBottom);
 
 .common-layout {
   height: 100vh;
-  width: 85vw;
+  width: 80vw;
   display: flex;
   flex-direction: column;
 }
@@ -162,9 +179,7 @@ onMounted(scrollToBottom);
 .result-box {
   flex-grow: 1;
   padding: 10px;
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
-  background-color: #f6f5f5;
+  background-color: #393838;
   overflow-y: auto;
   overflow-x: auto;
 }
@@ -188,6 +203,7 @@ onMounted(scrollToBottom);
   height: 40px;
   border-radius: 50%;
   margin-right: 10px;
+  margin-left: 10px;
 }
 
 .message {
@@ -216,7 +232,7 @@ onMounted(scrollToBottom);
 .chat-input {
   position: fixed;
   bottom: 0;
-  height: 10vh;
+  height: 5vh;
   display: flex;
   flex-wrap: nowrap;
   justify-content: space-between;
@@ -231,18 +247,18 @@ onMounted(scrollToBottom);
 .send-button {
   width: 100%;
   margin-left: 5px;
-  height: 50%;
+  height: 100%;
 }
 
 .clear-button {
   width: 100%;
   margin-left: 5px;
-  height: 50%;
+  height: 100%;
 }
 
 .chat-input .input-box {
   width: 100%;
-  min-height: 60px;
+  height: 100%;
 }
 
 .button-box {
@@ -265,6 +281,9 @@ onMounted(scrollToBottom);
 @media (max-width: 768px) {
   .common-layout {
     height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
   }
 
   .chat-container {
@@ -275,6 +294,7 @@ onMounted(scrollToBottom);
 
   .result-box {
     height: 100%;
+    background-color: #393838;
   }
 
   .chat-input {
@@ -289,6 +309,11 @@ onMounted(scrollToBottom);
 
   .send-button {
     margin-left: 5px;
+    height: 100%;
+  }
+
+  .clear-button {
+    height: 100%;
   }
 
   .assistant-message {
