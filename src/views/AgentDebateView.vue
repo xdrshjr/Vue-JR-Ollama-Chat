@@ -3,12 +3,12 @@
     <el-container>
         <el-header class="el-header-title">
           <div class="debate-person-box">
-            <div style="width: 60px">辩手1</div>
+            <div style="width: 70px">辩手1</div>
             <el-input v-model="input1" style="margin-left:10px;width: 240px" placeholder="蔡徐坤" />
             <el-input v-model="input1_profile" style="margin-left:10px; width: 240px" placeholder="知名歌手" />
           </div>
           <div class="debate-person-box-2">
-            <div style="width: 60px">辩手2</div>
+            <div style="width: 70px">辩手2</div>
             <el-input v-model="input2" style="margin-left:10px;width: 240px" placeholder="丁真" />
             <el-input v-model="input2_profile" style="margin-left:10px; width: 240px" placeholder="知名艺人" />
           </div>
@@ -369,7 +369,7 @@ onMounted(scrollToBottom);
 @media (max-width: 768px) {
   .el-main-class {
     padding: 0;
-    margin-top: 18%;
+    margin-top: 25%;
   }
 
   .el-header-title {
