@@ -1,7 +1,7 @@
 <template>
   <div class="common-layout">
     <el-container>
-        <el-header style="height: 10%; position: fixed; width: 100%;">
+        <el-header class="el-header-title">
           <div class="debate-person-box">
             <div style="width: 60px">辩手1</div>
             <el-input v-model="input1" style="margin-left:10px;width: 240px" placeholder="蔡徐坤" />
@@ -26,6 +26,8 @@
               >
                 <img v-if="message.role === 'user'" src="/user.png" class="avatar" />
                 <img v-if="message.role === 'assistant'" src="/robot.png" class="avatar" />
+                <img v-if="message.role === 'debate'" src="/作家.png" class="avatar" />
+                <img v-if="message.role === 'anti_debate'" src="/经理.png" class="avatar" />
                 <div
                     :class="['message', message.role === 'user' ? 'user-message' : 'assistant-message']"
                     v-html="message.content"
@@ -71,6 +73,7 @@ const messages = ref<any[]>([{ role: 'assistant', content: '你好，我是AI聊
 let newMessage = ref<string>('');
 const loading = ref<boolean>(false);
 const error = ref<boolean>(false);
+let is_defence = ref<boolean>(false);
 
 const input1 = ref("蔡徐坤")
 const input1_profile = ref("深度学习专家")
@@ -147,7 +150,11 @@ const callApi = async (message: string) => {
               messages.value.pop();
             }
             const newAssistantMessage = `[${data.name || '对不起，我无法获取到姓名。'}] [${data.profile || '对不起，我无法获取到描述。'}]: ${data.message || '对不起，我无法回答你的问题。'}`;
-            messages.value.push({ role: 'assistant', content: marked(newAssistantMessage), loading: false, progress: 0 });
+            if (data.name === input1.value) {
+              messages.value.push({ role: 'debate', content: marked(newAssistantMessage), loading: false, progress: 0 });
+            } else {
+              messages.value.push({ role: 'anti_debate', content: marked(newAssistantMessage), loading: false, progress: 0 });
+            }
             await nextTick(scrollToBottom);
           }
         } catch (error) {
@@ -232,7 +239,14 @@ onMounted(scrollToBottom);
 
 .el-main-class {
   padding: 0;
-  margin-top: 10vh;
+  margin-top: 8%;
+}
+
+.el-header-title {
+  position: fixed;
+  width: 100%;
+  height: 80px;
+  background: #343537;
 }
 
 .common-layout {
@@ -353,6 +367,18 @@ onMounted(scrollToBottom);
 }
 
 @media (max-width: 768px) {
+  .el-main-class {
+    padding: 0;
+    margin-top: 18%;
+  }
+
+  .el-header-title {
+    position: fixed;
+    width: 100%;
+    height: 80px;
+    background: #343537;
+  }
+
   .common-layout {
     height: 100vh;
     width: 100vw;
@@ -361,7 +387,7 @@ onMounted(scrollToBottom);
   }
 
   .chat-container {
-    height: calc(80vh - 50px);
+    height: calc(80vh - 55px);
     width: 100%;
     overflow: hidden;
   }
