@@ -143,13 +143,11 @@ const callApi = async (message: string) => {
             loading.value = false;
             return;
           } else {
-            assistantMessage += "\n\n";
-            assistantMessage += `[${data.name || '对不起，我无法获取到姓名。'}] `;
-            assistantMessage += `[${data.profile || '对不起，我无法获取到描述。'}]: `;
-            assistantMessage += data.message || '对不起，我无法回答你的问题。';
-            assistantMessage += '\n \n'; // 添加换行符
-            assistantMessage += "\n------------------\n";
-            messages.value[messages.value.length - 1].content = marked(assistantMessage);
+            if (messages.value[messages.value.length - 1].content === '等待消息中...') {
+              messages.value.pop();
+            }
+            const newAssistantMessage = `[${data.name || '对不起，我无法获取到姓名。'}] [${data.profile || '对不起，我无法获取到描述。'}]: ${data.message || '对不起，我无法回答你的问题。'}`;
+            messages.value.push({ role: 'assistant', content: marked(newAssistantMessage), loading: false, progress: 0 });
             await nextTick(scrollToBottom);
           }
         } catch (error) {
