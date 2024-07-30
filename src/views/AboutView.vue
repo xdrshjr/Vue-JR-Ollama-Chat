@@ -69,7 +69,7 @@ const handleEnter = (event: KeyboardEvent) => {
 const callApi = async (message: string) => {
   try {
     const systemPrompt = "你是一个知识丰富的助手，请帮忙回答用户的问题。当用户以任何方式问你是谁的时候，记住你的名字叫小悬，你的开发团队是JR-AI"; // 系统提示词
-    const response = await fetch(API_URLS.CHAT_API_xdrshjr, {
+    const response = await fetch(API_URLS.CHAT_API_4Card, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

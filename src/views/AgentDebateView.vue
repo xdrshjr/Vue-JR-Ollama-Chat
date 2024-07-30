@@ -1,7 +1,7 @@
 <template>
   <div class="common-layout">
     <el-container>
-        <el-header style="height: 10%">
+        <el-header style="height: 10%; position: fixed; width: 100%;">
           <div class="debate-person-box">
             <div style="width: 60px">辩手1</div>
             <el-input v-model="input1" style="margin-left:10px;width: 240px" placeholder="蔡徐坤" />
@@ -42,7 +42,7 @@
                   v-model="newMessage"
                   maxlength="2000"
                   class="input-box"
-                  placeholder="请输入您的问题"
+                  placeholder="Transformers如何改进?"
                   show-word-limit
                   type="text"
                   resize="none"
@@ -67,15 +67,15 @@ import { marked } from 'marked';
 import { ElLoading, ElMessage } from 'element-plus';
 import { Loading } from '@element-plus/icons-vue';
 
-const messages = ref<any[]>([{ role: 'assistant', content: '你好，我是AI聊天助手小悬，我现在可以去网上帮你搜索内容，再总结给你哦，有什么可以帮到你的呢.', loading: false, progress: 0 }]);
-const newMessage = ref<string>('');
+const messages = ref<any[]>([{ role: 'assistant', content: '你好，我是AI聊天助手小悬，我将为你组织一场辩论赛，请输入议题和辩手信息.', loading: false, progress: 0 }]);
+let newMessage = ref<string>('');
 const loading = ref<boolean>(false);
 const error = ref<boolean>(false);
 
 const input1 = ref("蔡徐坤")
-const input1_profile = ref("知名歌手")
+const input1_profile = ref("深度学习专家")
 const input2 = ref("丁真")
-const input2_profile = ref("知名艺人")
+const input2_profile = ref("大模型专家")
 
 const resultBox = ref<HTMLElement | null>(null);
 
@@ -106,8 +106,8 @@ const callApi = async (message: string) => {
       },
       body: JSON.stringify({
         idea: req_messages,
-        investment: 3,
-        n_round: 10,
+        investment: 4,
+        n_round: 5,
         debator1_name: input1.value,
         debator1_profile: input1_profile.value,
         debator2_name: input2.value,
@@ -143,11 +143,12 @@ const callApi = async (message: string) => {
             loading.value = false;
             return;
           } else {
-            assistantMessage += "\n==\n";
+            assistantMessage += "\n\n";
             assistantMessage += `[${data.name || '对不起，我无法获取到姓名。'}] `;
             assistantMessage += `[${data.profile || '对不起，我无法获取到描述。'}]: `;
             assistantMessage += data.message || '对不起，我无法回答你的问题。';
-            assistantMessage += '\n'; // 添加换行符
+            assistantMessage += '\n \n'; // 添加换行符
+            assistantMessage += "\n------------------\n";
             messages.value[messages.value.length - 1].content = marked(assistantMessage);
             await nextTick(scrollToBottom);
           }
@@ -233,6 +234,7 @@ onMounted(scrollToBottom);
 
 .el-main-class {
   padding: 0;
+  margin-top: 10vh;
 }
 
 .common-layout {
