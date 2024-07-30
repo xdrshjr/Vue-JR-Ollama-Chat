@@ -1,50 +1,62 @@
 <template>
   <div class="common-layout">
     <el-container>
-      <el-main class="el-main-class">
-        <div class="chat-container">
-          <div class="result-box" ref="resultBox">
-            <div
-                v-for="(message, index) in messages"
-                :key="index"
-                :class="[
-                'message-container',
-                message.role === 'user' ? 'user-message-container' : 'assistant-message-container'
-              ]"
-            >
-              <img v-if="message.role === 'user'" src="/user.png" class="avatar" />
-              <img v-if="message.role === 'assistant'" src="/robot.png" class="avatar" />
+        <el-header style="height: 10%">
+          <div class="debate-person-box">
+            <div style="width: 60px">辩手1</div>
+            <el-input v-model="input1" style="margin-left:10px;width: 240px" placeholder="蔡徐坤" />
+            <el-input v-model="input1_profile" style="margin-left:10px; width: 240px" placeholder="知名歌手" />
+          </div>
+          <div class="debate-person-box-2">
+            <div style="width: 60px">辩手2</div>
+            <el-input v-model="input2" style="margin-left:10px;width: 240px" placeholder="丁真" />
+            <el-input v-model="input2_profile" style="margin-left:10px; width: 240px" placeholder="知名艺人" />
+          </div>
+        </el-header>
+        <el-main class="el-main-class">
+          <div class="chat-container">
+            <div class="result-box" ref="resultBox">
               <div
-                  :class="['message', message.role === 'user' ? 'user-message' : 'assistant-message']"
-                  v-html="message.content"
-              ></div>
+                  v-for="(message, index) in messages"
+                  :key="index"
+                  :class="[
+                  'message-container',
+                  message.role === 'user' ? 'user-message-container' : 'assistant-message-container'
+                ]"
+              >
+                <img v-if="message.role === 'user'" src="/user.png" class="avatar" />
+                <img v-if="message.role === 'assistant'" src="/robot.png" class="avatar" />
+                <div
+                    :class="['message', message.role === 'user' ? 'user-message' : 'assistant-message']"
+                    v-html="message.content"
+                ></div>
+              </div>
+              <div v-if="loading" class="loading-container">
+                <el-icon><Loading /></el-icon>
+                <div class="loading-text">等待Agent辩论中，请稍候...</div>
+              </div>
+              <div v-if="error" class="error-text">获取消息失败，请稍后重试。</div>
             </div>
-            <div v-if="loading" class="loading-container">
-              <el-icon><Loading /></el-icon>
-              <div class="loading-text">等待Agent联网搜索消息中，请稍候...</div>
+            <div class="chat-input">
+              <el-input
+                  v-model="newMessage"
+                  maxlength="2000"
+                  class="input-box"
+                  placeholder="请输入您的问题"
+                  show-word-limit
+                  type="text"
+                  resize="none"
+                  :autosize="{ minRows: 1, maxRows: 8 }"
+                  @keyup.enter="handleEnter"
+                  @keydown.shift.enter.native.prevent="insertNewLine"
+              />
+              <div class="button-box">
+                <el-button type="primary" class="send-button" @click="sendMessage" color="#626aef">发送</el-button>
+                <el-button type="primary" class="clear-button" @click="clearMessages" color="#626aef">清除</el-button>
+              </div>
             </div>
-            <div v-if="error" class="error-text">获取消息失败，请稍后重试。</div>
           </div>
-          <div class="chat-input">
-            <el-input
-                v-model="newMessage"
-                maxlength="2000"
-                class="input-box"
-                placeholder="请输入您的问题"
-                show-word-limit
-                type="text"
-                resize="none"
-                :autosize="{ minRows: 1, maxRows: 8 }"
-                @keyup.enter="handleEnter"
-                @keydown.shift.enter.native.prevent="insertNewLine"
-            />
-            <div class="button-box">
-              <el-button type="primary" class="send-button" @click="sendMessage" color="#626aef">发送</el-button>
-              <el-button type="primary" class="clear-button" @click="clearMessages" color="#626aef">清除</el-button>
-            </div>
-          </div>
-        </div>
-      </el-main>
+        </el-main>
     </el-container>
   </div>
 </template>
@@ -59,6 +71,11 @@ const messages = ref<any[]>([{ role: 'assistant', content: '你好，我是AI聊
 const newMessage = ref<string>('');
 const loading = ref<boolean>(false);
 const error = ref<boolean>(false);
+
+const input1 = ref("蔡徐坤")
+const input1_profile = ref("知名歌手")
+const input2 = ref("丁真")
+const input2_profile = ref("知名艺人")
 
 const resultBox = ref<HTMLElement | null>(null);
 
@@ -91,10 +108,10 @@ const callApi = async (message: string) => {
         idea: req_messages,
         investment: 3,
         n_round: 10,
-        debator1_name: "丁真",
-        debator1_profile: "知名艺人",
-        debator2_name: "蔡徐坤",
-        debator2_profile: "著名歌手",
+        debator1_name: input1.value,
+        debator1_profile: input1_profile.value,
+        debator2_name: input2.value,
+        debator2_profile: input2_profile.value,
       }),
     });
 
@@ -126,7 +143,7 @@ const callApi = async (message: string) => {
             loading.value = false;
             return;
           } else {
-            assistantMessage += "\n\n";
+            assistantMessage += "\n==\n";
             assistantMessage += `[${data.name || '对不起，我无法获取到姓名。'}] `;
             assistantMessage += `[${data.profile || '对不起，我无法获取到描述。'}]: `;
             assistantMessage += data.message || '对不起，我无法回答你的问题。';
@@ -165,7 +182,7 @@ const sendMessage = async () => {
     messages.value.push({ role: 'user', content: marked(userMessage), loading: false, progress: 0 });
     newMessage.value = '';
     await nextTick(scrollToBottom);
-    messages.value.push({ role: 'assistant', content: '', loading: true, progress: 0 });
+    messages.value.push({ role: 'assistant', content: '等待消息中...', loading: true, progress: 0 });
     await callApi(userMessage);
   }
 };
@@ -184,6 +201,17 @@ onMounted(scrollToBottom);
 </script>
 
 <style scoped>
+.debate-person-box {
+  display: flex;
+  align-items: center;
+}
+
+.debate-person-box-2 {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
 .loading-container {
   display: flex;
   align-items: center;
