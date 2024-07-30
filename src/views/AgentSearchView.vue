@@ -7,7 +7,10 @@
             <div
                 v-for="(message, index) in messages"
                 :key="index"
-                :class="['message-container', message.role === 'user' ? 'user-message-container' : 'assistant-message-container']"
+                :class="[
+                'message-container',
+                message.role === 'user' ? 'user-message-container' : 'assistant-message-container'
+              ]"
             >
               <img v-if="message.role === 'user'" src="/user.png" class="avatar" />
               <img v-if="message.role === 'assistant'" src="/robot.png" class="avatar" />
@@ -16,9 +19,11 @@
                   v-html="message.content"
               ></div>
             </div>
-            <div v-if="messages.some(message => message.loading)" class="progress-container">
-              <el-progress :percentage="messages.find(message => message.loading)?.progress || 0"></el-progress>
+            <div v-if="loading" class="loading-container">
+              <el-icon><Loading /></el-icon>
+              <div class="loading-text">等待Agent联网搜索消息中，请稍候...</div>
             </div>
+            <div v-if="error" class="error-text">获取消息失败，请稍后重试。</div>
           </div>
           <div class="chat-input">
             <el-input
@@ -47,10 +52,13 @@
 <script lang="ts" setup>
 import { ref, nextTick, onMounted } from 'vue';
 import { marked } from 'marked';
-import { API_URLS, MODEL_NAME } from '@/assets/config';
+import { ElLoading, ElMessage } from 'element-plus';
+import { Loading } from '@element-plus/icons-vue';
 
-const messages = ref<any[]>([{ role: 'assistant', content: '你好，我是AI聊天助手小悬，有什么可以帮到你的呢.', loading: false, progress: 0 }]);
+const messages = ref<any[]>([{ role: 'assistant', content: '你好，我是AI聊天助手小悬，我现在可以去网上帮你搜索内容，再总结给你哦，有什么可以帮到你的呢.', loading: false, progress: 0 }]);
 const newMessage = ref<string>('');
+const loading = ref<boolean>(false);
+const error = ref<boolean>(false);
 
 const resultBox = ref<HTMLElement | null>(null);
 
@@ -67,66 +75,47 @@ const handleEnter = (event: KeyboardEvent) => {
 };
 
 const callApi = async (message: string) => {
+  loading.value = true;
+  error.value = false;
+  const timer = setTimeout(() => {
+    loading.value = false;
+    error.value = true;
+  }, 60000);
+  const systemPrompt = "你是一个知识丰富的助手，请帮忙回答用户的问题。当用户以任何方式问你是谁的时候，记住你的名字叫小悬。当别人没问你的时候不要回答你的名字，以下是问题："; // 系统提示词
+  const req_messages = systemPrompt + message
   try {
-    const systemPrompt = "你是一个知识丰富的助手，请帮忙回答用户的问题。当用户以任何方式问你是谁的时候，记住你的名字叫小悬，你的开发团队是JR-AI"; // 系统提示词
-    const response = await fetch(API_URLS.CHAT_API_xdrshjr, {
+    const response = await fetch('https://metaagent.hk.cpolar.io/async_run', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: MODEL_NAME.QWEN,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: message }
-        ],
+        question: req_messages,
       }),
       mode: 'cors',
     });
 
-    const reader = response.body?.getReader();
-    const decoder = new TextDecoder();
-    let done = false;
-    let content = '';
-    let partialMessage = '';
-
-    while (!done) {
-      const { value, done: doneReading } = await reader?.read()!;
-      done = doneReading;
-      content += decoder.decode(value, { stream: !done });
-
-      const jsonObjects = content.split('\n').filter(str => str.trim() !== '');
-      for (const jsonObject of jsonObjects) {
-        try {
-          const responseJson = JSON.parse(jsonObject);
-          if (responseJson.message.role === 'assistant') {
-            partialMessage += responseJson.message.content;
-            messages.value[messages.value.length - 1].content = marked(partialMessage);
-            messages.value[messages.value.length - 1].progress = done ? 100 : messages.value[messages.value.length - 1].progress + 10;
-            await nextTick(scrollToBottom);
-          }
-        } catch (e) {
-          continue;
-        }
-      }
-      content = '';
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
     }
 
-    messages.value[messages.value.length - 1].loading = false;
+    const responseData = await response.json();
+    clearTimeout(timer);
+    const assistantMessage = responseData.message?.content || '对不起，我无法回答你的问题。';
+
+    messages.value[messages.value.length - 1].content = marked(assistantMessage);
+    loading.value = false;
+    await nextTick(scrollToBottom);
   } catch (error) {
+    clearTimeout(timer);
     console.error('Error fetching data:', error);
+    loading.value = false;
+    error.value = true;
   }
 };
 
 const clearMessages = async () => {
   try {
-    await fetch('https://your-clear-api-endpoint', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ action: 'clear' }),
-    });
     messages.value = [];
   } catch (error) {
     console.error('Error clearing messages:', error);
@@ -158,6 +147,25 @@ onMounted(scrollToBottom);
 </script>
 
 <style scoped>
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.loading-text {
+  font-size: 16px;
+  margin-left: 10px;
+}
+
+.error-text {
+  color: red;
+  font-size: 16px;
+  text-align: center;
+  margin-top: 20px;
+}
+
 .el-main-class {
   padding: 0;
 }

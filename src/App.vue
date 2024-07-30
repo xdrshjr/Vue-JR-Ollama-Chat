@@ -16,7 +16,9 @@ import BottomMenuBar from "@/components/BottomMenuBar.vue";
           <LeftMenuBar></LeftMenuBar>
         </el-aside>
         <el-main class="right-section">
-          <RouterView />
+          <transition name="slide">
+            <RouterView />
+          </transition>
         </el-main>
       </el-container>
       <el-footer class="bottom-menu-bar">
@@ -27,6 +29,13 @@ import BottomMenuBar from "@/components/BottomMenuBar.vue";
 </template>
 
 <style scoped>
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+
 .menu-bar {
   width: 100vw; /* Ensure MenuBar takes full viewport width */
   position: fixed; /* Keep MenuBar at the top */

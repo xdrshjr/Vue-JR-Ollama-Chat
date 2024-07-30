@@ -26,7 +26,15 @@
         </el-sub-menu>
         <el-menu-item index="2">
           <el-icon><icon-menu /></el-icon>
-          <span>聊天助手</span>
+          <span>聊天助手（本地）</span>
+        </el-menu-item>
+        <el-menu-item index="4">
+          <el-icon><icon-menu /></el-icon>
+          <span>聊天助手（联网AI）</span>
+        </el-menu-item>
+        <el-menu-item index="5">
+          <el-icon><icon-menu /></el-icon>
+          <span>辩论Agent</span>
         </el-menu-item>
         <el-menu-item index="3">
           <el-icon><icon-menu /></el-icon>
@@ -61,6 +69,12 @@ const handleSelect = (key: string, keyPath: string[]) => {
   }
   if (key === '2') {
     router.push('/about')
+  }
+  if (key === '4') {
+    router.push('/agent_search')
+  }
+  if (key === '5') {
+    router.push('/agent_debate')
   }
 }
 </script>

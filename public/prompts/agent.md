@@ -1,3 +1,19 @@
+修改一下这个组件，我需要更换查询接口为https://metaagent.hk.cpolar.io/async_run，这个接口不是流式传输，直接去除content填充聊天结果。
+入参格式样例：
+{
+"question": "蔡徐坤是谁?"
+}
+返回值格式样例：
+{
+"model": "qwen2",
+"created_at": "2024-07-19 11:03:04",
+"message": {
+"role": "system",
+"content": "蔡徐坤，1998年8月2日出生于浙江省温州市，户籍湖南省吉首市，是中国内地的男歌手、演员、原创音乐制作人以及MV导演。他在2012年开始步入大众视线，通过参演偶像剧《童话二分之一》而被人们所熟知。蔡徐坤于2018年参加竞演类综艺节目《偶像练习生》，以总票数第一的成绩正式出道，并成为限定男团NINE PERCENT的一员。"
+},
+"done": false
+}
+代码：
 <template>
   <div class="common-layout">
     <el-container>
@@ -47,7 +63,6 @@
 <script lang="ts" setup>
 import { ref, nextTick, onMounted } from 'vue';
 import { marked } from 'marked';
-import { API_URLS, MODEL_NAME } from '@/assets/config';
 
 const messages = ref<any[]>([{ role: 'assistant', content: '你好，我是AI聊天助手小悬，有什么可以帮到你的呢.', loading: false, progress: 0 }]);
 const newMessage = ref<string>('');
@@ -69,13 +84,13 @@ const handleEnter = (event: KeyboardEvent) => {
 const callApi = async (message: string) => {
   try {
     const systemPrompt = "你是一个知识丰富的助手，请帮忙回答用户的问题。当用户以任何方式问你是谁的时候，记住你的名字叫小悬，你的开发团队是JR-AI"; // 系统提示词
-    const response = await fetch(API_URLS.CHAT_API_xdrshjr, {
+    const response = await fetch('https://ollama-chat.hk.cpolar.io/api/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: MODEL_NAME.QWEN,
+        model: 'qwen2',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: message }
@@ -158,171 +173,5 @@ onMounted(scrollToBottom);
 </script>
 
 <style scoped>
-.el-main-class {
-  padding: 0;
-}
 
-.common-layout {
-  height: 100vh;
-  width: 80vw;
-  display: flex;
-  flex-direction: column;
-}
-
-.chat-container {
-  display: flex;
-  flex-direction: column;
-  height: calc(90vh - 8vh);
-  width: 100%;
-  margin: 0;
-}
-
-.result-box {
-  flex-grow: 1;
-  padding: 10px;
-  background-color: #393838;
-  overflow-y: auto;
-  overflow-x: auto;
-}
-
-.message-container {
-  display: flex;
-  margin-bottom: 5px;
-}
-
-.user-message-container {
-  justify-content: flex-start;
-  flex-direction: row-reverse;
-}
-
-.assistant-message-container {
-  justify-content: flex-start;
-}
-
-.avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  margin-right: 10px;
-  margin-left: 10px;
-}
-
-.message {
-  padding: 10px;
-  background-color: #d1d1d1;
-  border-radius: 4px;
-  border: 1px solid #97989a;
-  color: #ffffff;
-  word-wrap: break-word;
-}
-
-.user-message {
-  background-color: #293e7b;
-  align-self: flex-end;
-  text-align: right;
-  margin-left: 10px;
-}
-
-.assistant-message {
-  background-color: #373737;
-  align-self: flex-start;
-  text-align: left;
-  margin-right: 10px;
-}
-
-.chat-input {
-  position: fixed;
-  bottom: 0;
-  height: 5vh;
-  display: flex;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #353535;
-  padding: 10px;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-  left: 200px;
-  right: 0;
-}
-
-.send-button {
-  width: 100%;
-  margin-left: 5px;
-  height: 100%;
-}
-
-.clear-button {
-  width: 100%;
-  margin-left: 5px;
-  height: 100%;
-}
-
-.chat-input .input-box {
-  width: 100%;
-  height: 100%;
-}
-
-.button-box {
-  display: flex;
-  justify-content: center;
-  height: 100%;
-  flex-wrap: nowrap;
-  align-items: center;
-  align-content: space-between;
-  flex-direction: row;
-}
-
-.progress-container {
-  padding: 0 1rem;
-  box-sizing: border-box;
-  margin-top: 10px;
-  margin-left: 5%;
-}
-
-@media (max-width: 768px) {
-  .common-layout {
-    height: 100vh;
-    width: 100vw;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .chat-container {
-    height: calc(80vh - 50px);
-    width: 100%;
-    overflow: hidden;
-  }
-
-  .result-box {
-    height: 100%;
-    background-color: #393838;
-  }
-
-  .chat-input {
-    height: 8vh;
-    display: flex;
-    flex-wrap: nowrap;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 60px;
-    left: 0;
-  }
-
-  .send-button {
-    margin-left: 5px;
-    height: 100%;
-  }
-
-  .clear-button {
-    height: 100%;
-  }
-
-  .assistant-message {
-    background-color: #373737;
-    align-self: flex-start;
-    text-align: left;
-    margin-right: 10px;
-    max-width: 80%;
-  }
-}
 </style>
