@@ -9,7 +9,7 @@
       @select="handleSelect"
   >
     <el-menu-item class="menu-text-class" index="1">聊天</el-menu-item>
-    <el-menu-item class="menu-text-class" index="3">联网Agent</el-menu-item>
+<!--    <el-menu-item class="menu-text-class" index="3">联网Agent</el-menu-item>-->
     <el-menu-item class="menu-text-class" index="4">辩论Agent</el-menu-item>
     <el-menu-item class="menu-text-class" index="2">关于</el-menu-item>
   </el-menu>

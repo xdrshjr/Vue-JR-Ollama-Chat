@@ -102,7 +102,7 @@ const callApi = async (message: string) => {
   const req_messages = systemPrompt + message;
 
   try {
-    const response = await fetch('https://jrchat-dev6.vip.cpolar.top/start_debate', {
+    const response = await fetch('https://debate-agent-jr.nas.cpolar.cn/start_debate', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -367,6 +367,11 @@ onMounted(scrollToBottom);
 }
 
 @media (max-width: 768px) {
+  .message-container {
+    display: flex;
+    margin-bottom: 15px;
+  }
+
   .el-main-class {
     padding: 0;
     margin-top: 25%;
@@ -395,6 +400,7 @@ onMounted(scrollToBottom);
   .result-box {
     height: 100%;
     background-color: #393838;
+    margin-bottom: 50px;
   }
 
   .chat-input {

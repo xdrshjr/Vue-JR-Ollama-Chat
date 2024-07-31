@@ -1,6 +1,19 @@
 <template>
   <div class="common-layout">
     <el-container>
+      <el-header class="options-header">
+        <div style="margin-right: 10px">
+          <p>模型选择:</p>
+        </div>
+        <el-select v-model="value" placeholder="Select" style="width: 200px">
+          <el-option
+              v-for="item in options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+          />
+        </el-select>
+      </el-header>
       <el-main class="el-main-class">
         <div class="chat-container">
           <div class="result-box" ref="resultBox">
@@ -16,9 +29,9 @@
                   v-html="message.content"
               ></div>
             </div>
-            <div v-if="messages.some(message => message.loading)" class="progress-container">
-              <el-progress :percentage="messages.find(message => message.loading)?.progress || 0"></el-progress>
-            </div>
+<!--            <div v-if="messages.some(message => message.loading)" class="progress-container">-->
+<!--              <el-progress :percentage="messages.find(message => message.loading)?.progress || 0"></el-progress>-->
+<!--            </div>-->
           </div>
           <div class="chat-input">
             <el-input
@@ -44,122 +57,21 @@
   </div>
 </template>
 
-<script lang="ts" setup>
-import { ref, nextTick, onMounted } from 'vue';
-import { marked } from 'marked';
-import { API_URLS, MODEL_NAME } from '@/assets/config';
-
-const messages = ref<any[]>([{ role: 'assistant', content: '你好，我是AI聊天助手小悬，有什么可以帮到你的呢.', loading: false, progress: 0 }]);
-const newMessage = ref<string>('');
-
-const resultBox = ref<HTMLElement | null>(null);
-
-const scrollToBottom = () => {
-  if (resultBox.value) {
-    resultBox.value.scrollTop = resultBox.value.scrollHeight;
-  }
-};
-
-const handleEnter = (event: KeyboardEvent) => {
-  if (!event.shiftKey) {
-    sendMessage();
-  }
-};
-
-const callApi = async (message: string) => {
-  try {
-    const systemPrompt = "你是一个知识丰富的助手，请帮忙回答用户的问题。当用户以任何方式问你是谁的时候，记住你的名字叫小悬，你的开发团队是JR-AI"; // 系统提示词
-    const response = await fetch(API_URLS.CHAT_API_4Card, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: MODEL_NAME.QWEN,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: message }
-        ],
-      }),
-      mode: 'cors',
-    });
-
-    const reader = response.body?.getReader();
-    const decoder = new TextDecoder();
-    let done = false;
-    let content = '';
-    let partialMessage = '';
-
-    while (!done) {
-      const { value, done: doneReading } = await reader?.read()!;
-      done = doneReading;
-      content += decoder.decode(value, { stream: !done });
-
-      const jsonObjects = content.split('\n').filter(str => str.trim() !== '');
-      for (const jsonObject of jsonObjects) {
-        try {
-          const responseJson = JSON.parse(jsonObject);
-          if (responseJson.message.role === 'assistant') {
-            partialMessage += responseJson.message.content;
-            messages.value[messages.value.length - 1].content = marked(partialMessage);
-            messages.value[messages.value.length - 1].progress = done ? 100 : messages.value[messages.value.length - 1].progress + 10;
-            await nextTick(scrollToBottom);
-          }
-        } catch (e) {
-          continue;
-        }
-      }
-      content = '';
-    }
-
-    messages.value[messages.value.length - 1].loading = false;
-  } catch (error) {
-    console.error('Error fetching data:', error);
-  }
-};
-
-const clearMessages = async () => {
-  try {
-    await fetch('https://your-clear-api-endpoint', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ action: 'clear' }),
-    });
-    messages.value = [];
-  } catch (error) {
-    console.error('Error clearing messages:', error);
-  }
-};
-
-const sendMessage = async () => {
-  if (newMessage.value.trim()) {
-    const userMessage = newMessage.value.trim();
-    messages.value.push({ role: 'user', content: marked(userMessage), loading: false, progress: 0 });
-    newMessage.value = '';
-    await nextTick(scrollToBottom);
-    messages.value.push({ role: 'assistant', content: '', loading: true, progress: 0 });
-    await callApi(userMessage);
-  }
-};
-
-const insertNewLine = (event: KeyboardEvent) => {
-  const textarea = event.target as HTMLTextAreaElement;
-  const start = textarea.selectionStart;
-  const end = textarea.selectionEnd;
-  newMessage.value = newMessage.value.substring(0, start) + '\n' + newMessage.value.substring(end);
-  nextTick(() => {
-    textarea.selectionStart = textarea.selectionEnd = start + 1;
-  });
-};
-
-onMounted(scrollToBottom);
-</script>
-
 <style scoped>
 .el-main-class {
   padding: 0;
+  margin-top: 80px; /* 根据实际高度调整 */
+}
+
+.options-header {
+  display: flex;
+  justify-content: flex-start; /* 确保内容居中 */
+  align-items: center; /* 确保内容垂直居中 */
+  position: fixed; /* 固定在页面顶部 */
+  top: 60px; /* 固定在页面的顶部 */
+  width: 100%; /* 占据全屏宽度 */
+  z-index: 1000; /* 确保它在其他内容之上 */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
 }
 
 .common-layout {
@@ -280,6 +192,11 @@ onMounted(scrollToBottom);
 }
 
 @media (max-width: 768px) {
+  .message-container {
+    display: flex;
+    margin-bottom: 15px;
+  }
+
   .common-layout {
     height: 100vh;
     width: 100vw;
@@ -296,6 +213,7 @@ onMounted(scrollToBottom);
   .result-box {
     height: 100%;
     background-color: #393838;
+    margin-bottom: 50px;
   }
 
   .chat-input {
@@ -326,3 +244,131 @@ onMounted(scrollToBottom);
   }
 }
 </style>
+
+<script lang="ts" setup>
+import { ref, nextTick, onMounted } from 'vue';
+import { marked } from 'marked';
+import { API_URLS, MODEL_NAME, getModelInfo } from '@/assets/config';
+
+const messages = ref<any[]>([{ role: 'assistant', content: '你好，我是AI聊天助手小悬，有什么可以帮到你的呢.', loading: false, progress: 0 }]);
+const newMessage = ref<string>('');
+
+const resultBox = ref<HTMLElement | null>(null);
+
+const value = ref('Qwen-7b')
+
+const options = [
+  {
+    value: 'Qwen-7b',
+    label: 'Qwen-7b',
+  },
+  {
+    value: 'Llama3.1-70b',
+    label: 'Llama3.1-70b',
+  }
+]
+
+const scrollToBottom = () => {
+  if (resultBox.value) {
+    resultBox.value.scrollTop = resultBox.value.scrollHeight;
+  }
+};
+
+const handleEnter = (event: KeyboardEvent) => {
+  if (!event.shiftKey) {
+    sendMessage();
+  }
+};
+
+const callApi = async (message: string, model_url: string, model_name: string) => {
+  try {
+    const systemPrompt = "你是一个知识丰富的助手，请帮忙回答用户的问题。当用户以任何方式问你是谁的时候，记住你的名字叫小悬，你的开发团队是JR-AI"; // 系统提示词
+    const response = await fetch(model_url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: model_name,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: message }
+        ],
+      }),
+      mode: 'cors',
+    });
+
+    const reader = response.body?.getReader();
+    const decoder = new TextDecoder();
+    let done = false;
+    let content = '';
+    let partialMessage = '';
+
+    while (!done) {
+      const { value, done: doneReading } = await reader?.read()!;
+      done = doneReading;
+      content += decoder.decode(value, { stream: !done });
+
+      const jsonObjects = content.split('\n').filter(str => str.trim() !== '');
+      for (const jsonObject of jsonObjects) {
+        try {
+          const responseJson = JSON.parse(jsonObject);
+          if (responseJson.message.role === 'assistant') {
+            partialMessage += responseJson.message.content;
+            messages.value[messages.value.length - 1].content = marked(partialMessage);
+            messages.value[messages.value.length - 1].progress = done ? 100 : messages.value[messages.value.length - 1].progress + 10;
+            await nextTick(scrollToBottom);
+          }
+        } catch (e) {
+          continue;
+        }
+      }
+      content = '';
+    }
+
+    messages.value[messages.value.length - 1].loading = false;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+const clearMessages = async () => {
+  try {
+    await fetch('https://your-clear-api-endpoint', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ action: 'clear' }),
+    });
+    messages.value = [];
+  } catch (error) {
+    console.error('Error clearing messages:', error);
+  }
+};
+
+const sendMessage = async () => {
+  if (newMessage.value.trim()) {
+    const userMessage = newMessage.value.trim();
+    messages.value.push({ role: 'user', content: marked(userMessage), loading: false, progress: 0 });
+    newMessage.value = '';
+    await nextTick(scrollToBottom);
+    messages.value.push({ role: 'assistant', content: '等待消息中...', loading: true, progress: 0 });
+    let {model_url, model_name} = getModelInfo(value.value);
+    await callApi(userMessage, model_url, model_name);
+  }
+};
+
+const insertNewLine = (event: KeyboardEvent) => {
+  const textarea = event.target as HTMLTextAreaElement;
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  newMessage.value = newMessage.value.substring(0, start) + '\n' + newMessage.value.substring(end);
+  nextTick(() => {
+    textarea.selectionStart = textarea.selectionEnd = start + 1;
+  });
+};
+
+onMounted(scrollToBottom);
+</script>
+

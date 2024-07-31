@@ -28,13 +28,13 @@
           <el-icon><icon-menu /></el-icon>
           <span>聊天助手（本地）</span>
         </el-menu-item>
-        <el-menu-item index="4">
-          <el-icon><icon-menu /></el-icon>
-          <span>聊天助手（联网AI）</span>
-        </el-menu-item>
         <el-menu-item index="5">
           <el-icon><icon-menu /></el-icon>
           <span>辩论Agent</span>
+        </el-menu-item>
+        <el-menu-item index="4" :disabled="true">
+          <el-icon><icon-menu /></el-icon>
+          <span>聊天助手（联网AI）</span>
         </el-menu-item>
         <el-menu-item index="3">
           <el-icon><icon-menu /></el-icon>
