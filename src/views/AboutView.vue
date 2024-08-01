@@ -36,7 +36,7 @@
           <div class="chat-input">
             <el-input
                 v-model="newMessage"
-                maxlength="2000"
+                maxlength="20000"
                 class="input-box"
                 placeholder="请输入您的问题"
                 show-word-limit
@@ -100,6 +100,7 @@
 .message-container {
   display: flex;
   margin-bottom: 5px;
+  align-items: flex-start; /* 确保消息在开始对齐 */
 }
 
 .user-message-container {
@@ -131,8 +132,10 @@
 .user-message {
   background-color: #293e7b;
   align-self: flex-end;
-  text-align: right;
+  text-align: left;
   margin-left: 10px;
+  max-width: 80%; /* 限制用户消息的最大宽度 */
+  word-wrap: break-word;
 }
 
 .assistant-message {
@@ -140,6 +143,8 @@
   align-self: flex-start;
   text-align: left;
   margin-right: 10px;
+  max-width: 80%; /* 限制助手消息的最大宽度 */
+  word-wrap: break-word;
 }
 
 .chat-input {
@@ -347,9 +352,26 @@ const clearMessages = async () => {
   }
 };
 
+const escapeHtml = (unsafe: any) => {
+  return unsafe.replace(/[&<"']/g, (match: any) => {
+    switch (match) {
+      case '&':
+        return '&amp;';
+      case '<':
+        return '&lt;';
+      case '>':
+        return '&gt;';
+      case '"':
+        return '&quot;';
+      case "'":
+        return '&#039;';
+    }
+  });
+};
+
 const sendMessage = async () => {
   if (newMessage.value.trim()) {
-    const userMessage = newMessage.value.trim();
+    const userMessage = escapeHtml(newMessage.value.trim());
     messages.value.push({ role: 'user', content: marked(userMessage), loading: false, progress: 0 });
     newMessage.value = '';
     await nextTick(scrollToBottom);
