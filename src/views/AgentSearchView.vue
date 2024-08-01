@@ -1,34 +1,43 @@
 <template>
   <div class="common-layout">
     <el-container>
+      <el-header class="options-header">
+        <div style="margin-right: 10px">
+          <p>模型选择:</p>
+        </div>
+        <el-select v-model="value" placeholder="Select" style="width: 200px; margin-right: 10px" :disabled="true">
+          <el-option
+              v-for="item in options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+          />
+        </el-select>
+        <div class="button-box">
+          <el-button type="primary" class="send-button-clear" @click="clearContext()" color="#626aef">清除上下文</el-button>
+        </div>
+      </el-header>
       <el-main class="el-main-class">
         <div class="chat-container">
           <div class="result-box" ref="resultBox">
             <div
                 v-for="(message, index) in messages"
                 :key="index"
-                :class="[
-                'message-container',
-                message.role === 'user' ? 'user-message-container' : 'assistant-message-container'
-              ]"
+                :class="['message-container', message.role === 'user' ? 'user-message-container' : 'assistant-message-container']"
             >
               <img v-if="message.role === 'user'" src="/user.png" class="avatar" />
               <img v-if="message.role === 'assistant'" src="/robot.png" class="avatar" />
               <div
                   :class="['message', message.role === 'user' ? 'user-message' : 'assistant-message']"
-                  v-html="message.content"
-              ></div>
+              >
+                <span v-html="message.formattedContent"></span>
+              </div>
             </div>
-            <div v-if="loading" class="loading-container">
-              <el-icon><Loading /></el-icon>
-              <div class="loading-text">等待Agent联网搜索消息中，请稍候...</div>
-            </div>
-            <div v-if="error" class="error-text">获取消息失败，请稍后重试。</div>
           </div>
           <div class="chat-input">
             <el-input
                 v-model="newMessage"
-                maxlength="2000"
+                maxlength="20000"
                 class="input-box"
                 placeholder="请输入您的问题"
                 show-word-limit
@@ -49,125 +58,21 @@
   </div>
 </template>
 
-<script lang="ts" setup>
-import { ref, nextTick, onMounted } from 'vue';
-import { marked } from 'marked';
-import { ElLoading, ElMessage } from 'element-plus';
-import { Loading } from '@element-plus/icons-vue';
-
-const messages = ref<any[]>([{ role: 'assistant', content: '你好，我是AI聊天助手小悬，我现在可以去网上帮你搜索内容，再总结给你哦，有什么可以帮到你的呢.', loading: false, progress: 0 }]);
-const newMessage = ref<string>('');
-const loading = ref<boolean>(false);
-const error = ref<boolean>(false);
-
-const resultBox = ref<HTMLElement | null>(null);
-
-const scrollToBottom = () => {
-  if (resultBox.value) {
-    resultBox.value.scrollTop = resultBox.value.scrollHeight;
-  }
-};
-
-const handleEnter = (event: KeyboardEvent) => {
-  if (!event.shiftKey) {
-    sendMessage();
-  }
-};
-
-const callApi = async (message: string) => {
-  loading.value = true;
-  error.value = false;
-  const timer = setTimeout(() => {
-    loading.value = false;
-    error.value = true;
-  }, 60000);
-  const systemPrompt = "你是一个知识丰富的助手，请帮忙回答用户的问题。当用户以任何方式问你是谁的时候，记住你的名字叫小悬。当别人没问你的时候不要回答你的名字，以下是问题："; // 系统提示词
-  const req_messages = systemPrompt + message
-  try {
-    const response = await fetch('https://metaagent.hk.cpolar.io/async_run', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        question: req_messages,
-      }),
-      mode: 'cors',
-    });
-
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-
-    const responseData = await response.json();
-    clearTimeout(timer);
-    const assistantMessage = responseData.message?.content || '对不起，我无法回答你的问题。';
-
-    messages.value[messages.value.length - 1].content = marked(assistantMessage);
-    loading.value = false;
-    await nextTick(scrollToBottom);
-  } catch (error) {
-    clearTimeout(timer);
-    console.error('Error fetching data:', error);
-    loading.value = false;
-    error.value = true;
-  }
-};
-
-const clearMessages = async () => {
-  try {
-    messages.value = [];
-  } catch (error) {
-    console.error('Error clearing messages:', error);
-  }
-};
-
-const sendMessage = async () => {
-  if (newMessage.value.trim()) {
-    const userMessage = newMessage.value.trim();
-    messages.value.push({ role: 'user', content: marked(userMessage), loading: false, progress: 0 });
-    newMessage.value = '';
-    await nextTick(scrollToBottom);
-    messages.value.push({ role: 'assistant', content: '', loading: true, progress: 0 });
-    await callApi(userMessage);
-  }
-};
-
-const insertNewLine = (event: KeyboardEvent) => {
-  const textarea = event.target as HTMLTextAreaElement;
-  const start = textarea.selectionStart;
-  const end = textarea.selectionEnd;
-  newMessage.value = newMessage.value.substring(0, start) + '\n' + newMessage.value.substring(end);
-  nextTick(() => {
-    textarea.selectionStart = textarea.selectionEnd = start + 1;
-  });
-};
-
-onMounted(scrollToBottom);
-</script>
-
 <style scoped>
-.loading-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-.loading-text {
-  font-size: 16px;
-  margin-left: 10px;
-}
-
-.error-text {
-  color: red;
-  font-size: 16px;
-  text-align: center;
-  margin-top: 20px;
-}
-
 .el-main-class {
   padding: 0;
+  margin-top: 80px; /* 根据实际高度调整 */
+}
+
+.options-header {
+  display: flex;
+  justify-content: flex-start; /* 确保内容居中 */
+  align-items: center; /* 确保内容垂直居中 */
+  position: fixed; /* 固定在页面顶部 */
+  top: 60px; /* 固定在页面的顶部 */
+  width: 100%; /* 占据全屏宽度 */
+  z-index: 1000; /* 确保它在其他内容之上 */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
 }
 
 .common-layout {
@@ -196,6 +101,7 @@ onMounted(scrollToBottom);
 .message-container {
   display: flex;
   margin-bottom: 5px;
+  align-items: flex-start; /* 确保消息在开始对齐 */
 }
 
 .user-message-container {
@@ -227,8 +133,10 @@ onMounted(scrollToBottom);
 .user-message {
   background-color: #293e7b;
   align-self: flex-end;
-  text-align: right;
+  text-align: left;
   margin-left: 10px;
+  max-width: 80%; /* 限制用户消息的最大宽度 */
+  word-wrap: break-word;
 }
 
 .assistant-message {
@@ -236,6 +144,20 @@ onMounted(scrollToBottom);
   align-self: flex-start;
   text-align: left;
   margin-right: 10px;
+  max-width: 83%; /* 限制助手消息的最大宽度 */
+  word-wrap: break-word;
+}
+
+::v-deep .code-block {
+  background-color: #2d2d2d;
+  color: #f8f8f2;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #97989a;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  margin: 5px 0 5px 0;
+  font-family: 'Consolas', monospace;
 }
 
 .chat-input {
@@ -288,6 +210,21 @@ onMounted(scrollToBottom);
 }
 
 @media (max-width: 768px) {
+  .send-button-clear {
+    height: 50%;
+  }
+
+  .options-header {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+  }
+
+  .message-container {
+    display: flex;
+    margin-bottom: 15px;
+  }
+
   .common-layout {
     height: 100vh;
     width: 100vw;
@@ -304,6 +241,7 @@ onMounted(scrollToBottom);
   .result-box {
     height: 100%;
     background-color: #393838;
+    margin-bottom: 50px;
   }
 
   .chat-input {
@@ -334,3 +272,182 @@ onMounted(scrollToBottom);
   }
 }
 </style>
+
+<script lang="ts" setup>
+import { ref, nextTick, onMounted, watch } from 'vue';
+import { marked } from 'marked';
+import { API_URLS, MODEL_NAME, getModelInfo } from '@/assets/config';
+
+const messages = ref<any[]>([{ role: 'assistant', content: '你好，我是写作智能体.', loading: false, progress: 0 }]);
+const newMessage = ref<string>('');
+
+const resultBox = ref<HTMLElement | null>(null);
+
+const value = ref('Llama3.1')
+
+const options = [
+  {
+    value: 'Qwen-7b',
+    label: 'Qwen-7b',
+  },
+  {
+    value: 'Llama3.1-70b',
+    label: 'Llama3.1-70b',
+  }
+]
+
+const scrollToBottom = () => {
+  if (resultBox.value) {
+    resultBox.value.scrollTop = resultBox.value.scrollHeight;
+  }
+};
+
+const handleEnter = (event: KeyboardEvent) => {
+  if (!event.shiftKey) {
+    sendMessage();
+  }
+};
+
+const callApi = async (message: any, model_url: any, model_name: any) => {
+  try {
+    const systemPrompt = "你是一个知识丰富的助手，请帮忙回答用户的问题。当用户以任何方式问你是谁的时候，记住你的名字叫小悬，你的开发团队是JR-AI"; // 系统提示词
+    const filteredMessages = messages.value.filter(m => !(m.content === '等待消息中...'));
+    const response = await fetch(model_url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: model_name,
+        stream: true,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          ...filteredMessages.map(m => ({ role: m.role, content: m.content }))
+        ],
+      }),
+      mode: 'cors',
+    });
+    const reader = response.body?.getReader();
+    const decoder = new TextDecoder();
+    let done = false;
+    let content = '';
+    let partialMessage = '';
+
+    // 添加一个占位符消息
+    messages.value.push({
+      role: 'assistant',
+      content: '',
+      loading: true,
+      progress: 0
+    });
+
+    while (!done) {
+      const { value, done: doneReading } = await reader?.read()!;
+      done = doneReading;
+      content += decoder.decode(value, { stream: !done });
+
+      const jsonObjects = content.split('\n').filter(str => str.trim() !== '');
+
+      for (const jsonObject of jsonObjects) {
+        // 去掉 'data: ' 前缀
+        const jsonString = jsonObject.startsWith('data: ') ? jsonObject.slice(6) : jsonObject;
+        try {
+          const responseJson = JSON.parse(jsonString);
+          if (responseJson.choices && responseJson.choices[0].delta && responseJson.choices[0].delta.content) {
+            partialMessage += responseJson.choices[0].delta.content;
+            const currentMessage = messages.value[messages.value.length - 1];
+            currentMessage.content = marked(partialMessage);
+            currentMessage.progress = done ? 100 : currentMessage.progress + 10;
+            await nextTick(() => {
+              formatMessageContent();
+              scrollToBottom();
+            });
+          }
+        } catch (e) {
+          continue;
+        }
+      }
+      content = '';
+    }
+
+    messages.value[messages.value.length - 1].loading = false;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+const clearMessages = async () => {
+  newMessage.value = ''
+};
+
+const escapeHtml = (unsafe: any) => {
+  return unsafe.replace(/[&<"']/g, (match: any) => {
+    switch (match) {
+      case '&':
+        return '&amp;';
+      case '<':
+        return '&lt;';
+      case '>':
+        return '&gt;';
+      case '"':
+        return '&quot;';
+      case "'":
+        return '&#039;';
+    }
+  });
+};
+
+const clearContext = () => {
+  messages.value = []
+}
+
+const sendMessage = async () => {
+  if (newMessage.value.trim()) {
+    const userMessage = escapeHtml(newMessage.value.trim());
+    messages.value.push({ role: 'user', content: userMessage, loading: false, progress: 0 });
+    newMessage.value = '';
+    await nextTick(() => {
+      formatMessageContent();
+      scrollToBottom();
+    });
+    messages.value.push({ role: 'assistant', content: '等待消息中...', loading: true, progress: 0 });
+    let {model_url, model_name} = getModelInfo(value.value);
+    await callApi(userMessage, 'https://qwen72ollama-jr.nas.cpolar.cn/v1/chat/completions', 'write_tutorial');
+  }
+};
+
+const insertNewLine = (event: KeyboardEvent) => {
+  const textarea = event.target as HTMLTextAreaElement;
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  newMessage.value = newMessage.value.substring(0, start) + '\n' + newMessage.value.substring(end);
+  nextTick(() => {
+    textarea.selectionStart = textarea.selectionEnd = start + 1;
+  });
+};
+
+const isCodeBlock = (content: string) => {
+  return content.includes('<pre><code');
+};
+
+const formatMessageContent = () => {
+  messages.value.forEach(message => {
+    if (isCodeBlock(message.content)) {
+      message.formattedContent = message.content.replace(/<pre><code[^>]*>([\s\S]*?)<\/code><\/pre>/g, (match, p1) => {
+        return `<pre class="code-block"><code>${p1}</code></pre>`;
+      });
+    } else {
+      message.formattedContent = message.content;
+    }
+  });
+};
+
+onMounted(() => {
+  formatMessageContent();
+  scrollToBottom();
+});
+
+// 监听消息内容的变化，确保每次变化后重新格式化内容
+watch(messages, () => {
+  nextTick(formatMessageContent);
+}, { deep: true });
+</script>
