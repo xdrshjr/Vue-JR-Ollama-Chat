@@ -3,14 +3,27 @@
     <el-container>
         <el-header class="el-header-title">
           <div class="debate-person-box">
+            <div style="width: 70px">模型选择</div>
+            <el-select v-model="selectValue" placeholder="Select" style="width: 150px; margin-left: 10px">
+              <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+              />
+            </el-select>
+            <div style="width: 70px; margin-left: 10px">回合数</div>
+            <el-input v-model="round_num" style="margin-left:0px;width: 150px" placeholder="蔡徐坤" />
+          </div>
+          <div class="debate-person-box">
             <div style="width: 70px">辩手1</div>
-            <el-input v-model="input1" style="margin-left:10px;width: 240px" placeholder="蔡徐坤" />
-            <el-input v-model="input1_profile" style="margin-left:10px; width: 240px" placeholder="知名歌手" />
+            <el-input v-model="input1" style="margin-left:10px;width: 150px" placeholder="蔡徐坤" />
+            <el-input v-model="input1_profile" style="margin-left:10px; width: 220px" placeholder="知名歌手" />
           </div>
           <div class="debate-person-box-2">
             <div style="width: 70px">辩手2</div>
-            <el-input v-model="input2" style="margin-left:10px;width: 240px" placeholder="丁真" />
-            <el-input v-model="input2_profile" style="margin-left:10px; width: 240px" placeholder="知名艺人" />
+            <el-input v-model="input2" style="margin-left:10px;width: 150px" placeholder="丁真" />
+            <el-input v-model="input2_profile" style="margin-left:10px; width: 220px" placeholder="知名艺人" />
           </div>
         </el-header>
         <el-main class="el-main-class">
@@ -35,7 +48,7 @@
               </div>
               <div v-if="loading" class="loading-container">
                 <el-icon><Loading /></el-icon>
-                <div class="loading-text">等待Agent辩论中，请稍候...</div>
+                <div class="loading-text">Agent辩论中...大号模型需要较长时间...</div>
               </div>
               <div v-if="error" class="error-text">获取消息失败，请稍后重试。</div>
             </div>
@@ -73,7 +86,19 @@ const messages = ref<any[]>([{ role: 'assistant', content: '你好，我是AI聊
 let newMessage = ref<string>('');
 const loading = ref<boolean>(false);
 const error = ref<boolean>(false);
-let is_defence = ref<boolean>(false);
+const selectValue = ref('Qwen-7b')
+const round_num = ref<string>('4');
+
+const options = [
+  {
+    value: 'Qwen-7b',
+    label: 'Qwen-7b',
+  },
+  {
+    value: 'Llama3.1-70b',
+    label: 'Llama3.1-70b',
+  }
+]
 
 const input1 = ref("蔡徐坤")
 const input1_profile = ref("深度学习专家")
@@ -110,7 +135,8 @@ const callApi = async (message: string) => {
       body: JSON.stringify({
         idea: req_messages,
         investment: 4,
-        n_round: 5,
+        model_name: selectValue.value,
+        n_round: parseInt(round_num.value),
         debator1_name: input1.value,
         debator1_profile: input1_profile.value,
         debator2_name: input2.value,
@@ -210,6 +236,7 @@ onMounted(scrollToBottom);
 .debate-person-box {
   display: flex;
   align-items: center;
+  margin-bottom: 10px;
 }
 
 .debate-person-box-2 {
@@ -238,18 +265,19 @@ onMounted(scrollToBottom);
 }
 
 .el-main-class {
-  padding: 0;
+  padding: 0 0 0 0;
   margin-top: 8%;
 }
 
 .el-header-title {
   position: fixed;
   width: 100%;
-  height: 80px;
-  background: #343537;
+  height: 120px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
 }
 
 .common-layout {
+  margin-top: 20px;
   height: 100vh;
   width: 80vw;
   display: flex;
@@ -270,6 +298,8 @@ onMounted(scrollToBottom);
   background-color: #393838;
   overflow-y: auto;
   overflow-x: auto;
+  margin-bottom: 50px;
+  margin-top: 50px;
 }
 
 .message-container {
@@ -374,7 +404,7 @@ onMounted(scrollToBottom);
 
   .el-main-class {
     padding: 0;
-    margin-top: 25%;
+    margin-top: 35%;
   }
 
   .el-header-title {
@@ -385,6 +415,7 @@ onMounted(scrollToBottom);
   }
 
   .common-layout {
+    margin-top: 0px;
     height: 100vh;
     width: 100vw;
     display: flex;

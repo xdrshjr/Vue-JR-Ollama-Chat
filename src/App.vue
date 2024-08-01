@@ -163,7 +163,6 @@ nav a:first-of-type {
     width: 200px;
   }
   .right-section {
-    margin-left: 200px;
     width: calc(100% - 200px);
   }
 
