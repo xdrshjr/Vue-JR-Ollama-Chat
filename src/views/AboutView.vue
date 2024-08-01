@@ -145,14 +145,15 @@
   word-wrap: break-word;
 }
 
-.code-block {
+::v-deep .code-block {
   background-color: #2d2d2d;
   color: #f8f8f2;
   padding: 10px;
   border-radius: 4px;
   border: 1px solid #97989a;
-  overflow-x: auto; /* 添加水平滚动条 */
-  white-space: pre-wrap; /* 保持代码的格式 */
+  overflow-x: auto;
+  white-space: pre-wrap;
+  margin: 5px 0 5px 0;
 }
 
 .chat-input {
@@ -259,7 +260,7 @@
 </style>
 
 <script lang="ts" setup>
-import {ref, nextTick, onMounted, onUpdated, watch} from 'vue';
+import { ref, nextTick, onMounted, watch } from 'vue';
 import { marked } from 'marked';
 import { API_URLS, MODEL_NAME, getModelInfo } from '@/assets/config';
 
@@ -358,6 +359,7 @@ const clearMessages = async () => {
       body: JSON.stringify({ action: 'clear' }),
     });
     messages.value = [];
+    await nextTick(formatMessageContent); // 确保清除后重新渲染消息
   } catch (error) {
     console.error('Error clearing messages:', error);
   }
@@ -385,7 +387,10 @@ const sendMessage = async () => {
     const userMessage = escapeHtml(newMessage.value.trim());
     messages.value.push({ role: 'user', content: marked(userMessage), loading: false, progress: 0 });
     newMessage.value = '';
-    await nextTick(scrollToBottom);
+    await nextTick(() => {
+      formatMessageContent();
+      scrollToBottom();
+    });
     messages.value.push({ role: 'assistant', content: '等待消息中...', loading: true, progress: 0 });
     let {model_url, model_name} = getModelInfo(value.value);
     await callApi(userMessage, model_url, model_name);
@@ -419,11 +424,6 @@ const formatMessageContent = () => {
 };
 
 onMounted(() => {
-  formatMessageContent();
-  scrollToBottom();
-});
-
-onUpdated(() => {
   formatMessageContent();
   scrollToBottom();
 });
