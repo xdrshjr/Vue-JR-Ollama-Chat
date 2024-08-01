@@ -5,7 +5,7 @@
         <div style="margin-right: 10px">
           <p>模型选择:</p>
         </div>
-        <el-select v-model="value" placeholder="Select" style="width: 200px">
+        <el-select v-model="value" placeholder="Select" style="width: 200px; margin-right: 10px">
           <el-option
               v-for="item in options"
               :key="item.value"
@@ -13,6 +13,9 @@
               :value="item.value"
           />
         </el-select>
+        <div class="button-box">
+          <el-button type="primary" class="send-button-clear" @click="clearContext()" color="#626aef">清除上下文</el-button>
+        </div>
       </el-header>
       <el-main class="el-main-class">
         <div class="chat-container">
@@ -207,6 +210,16 @@
 }
 
 @media (max-width: 768px) {
+  .send-button-clear {
+    height: 50%;
+  }
+
+  .options-header {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+  }
+
   .message-container {
     display: flex;
     margin-bottom: 15px;
@@ -298,6 +311,7 @@ const handleEnter = (event: KeyboardEvent) => {
 const callApi = async (message: string, model_url: string, model_name: string) => {
   try {
     const systemPrompt = "你是一个知识丰富的助手，请帮忙回答用户的问题。当用户以任何方式问你是谁的时候，记住你的名字叫小悬，你的开发团队是JR-AI"; // 系统提示词
+    const filteredMessages = messages.value.filter(m => !(m.role === 'assistant' && m.content === '等待消息中...'));
     const response = await fetch(model_url, {
       method: 'POST',
       headers: {
@@ -307,12 +321,11 @@ const callApi = async (message: string, model_url: string, model_name: string) =
         model: model_name,
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: message }
+          ...filteredMessages.map(m => ({ role: m.role, content: m.content }))
         ],
       }),
       mode: 'cors',
     });
-
     const reader = response.body?.getReader();
     const decoder = new TextDecoder();
     let done = false;
@@ -351,19 +364,7 @@ const callApi = async (message: string, model_url: string, model_name: string) =
 };
 
 const clearMessages = async () => {
-  try {
-    await fetch('https://your-clear-api-endpoint', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ action: 'clear' }),
-    });
-    messages.value = [];
-    await nextTick(formatMessageContent); // 确保清除后重新渲染消息
-  } catch (error) {
-    console.error('Error clearing messages:', error);
-  }
+  newMessage.value = ''
 };
 
 const escapeHtml = (unsafe: any) => {
@@ -382,6 +383,10 @@ const escapeHtml = (unsafe: any) => {
     }
   });
 };
+
+const clearContext = () => {
+  messages.value = []
+}
 
 const sendMessage = async () => {
   if (newMessage.value.trim()) {
