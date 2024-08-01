@@ -26,12 +26,10 @@
               <img v-if="message.role === 'assistant'" src="/robot.png" class="avatar" />
               <div
                   :class="['message', message.role === 'user' ? 'user-message' : 'assistant-message']"
-                  v-html="message.content"
-              ></div>
+              >
+                <span v-html="message.formattedContent"></span>
+              </div>
             </div>
-<!--            <div v-if="messages.some(message => message.loading)" class="progress-container">-->
-<!--              <el-progress :percentage="messages.find(message => message.loading)?.progress || 0"></el-progress>-->
-<!--            </div>-->
           </div>
           <div class="chat-input">
             <el-input
@@ -147,6 +145,16 @@
   word-wrap: break-word;
 }
 
+.code-block {
+  background-color: #2d2d2d;
+  color: #f8f8f2;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #97989a;
+  overflow-x: auto; /* 添加水平滚动条 */
+  white-space: pre-wrap; /* 保持代码的格式 */
+}
+
 .chat-input {
   position: fixed;
   bottom: 0;
@@ -251,7 +259,7 @@
 </style>
 
 <script lang="ts" setup>
-import { ref, nextTick, onMounted } from 'vue';
+import {ref, nextTick, onMounted, onUpdated, watch} from 'vue';
 import { marked } from 'marked';
 import { API_URLS, MODEL_NAME, getModelInfo } from '@/assets/config';
 
@@ -322,7 +330,10 @@ const callApi = async (message: string, model_url: string, model_name: string) =
             partialMessage += responseJson.message.content;
             messages.value[messages.value.length - 1].content = marked(partialMessage);
             messages.value[messages.value.length - 1].progress = done ? 100 : messages.value[messages.value.length - 1].progress + 10;
-            await nextTick(scrollToBottom);
+            await nextTick(() => {
+              formatMessageContent();
+              scrollToBottom();
+            });
           }
         } catch (e) {
           continue;
@@ -391,6 +402,34 @@ const insertNewLine = (event: KeyboardEvent) => {
   });
 };
 
-onMounted(scrollToBottom);
-</script>
+const isCodeBlock = (content: string) => {
+  return content.includes('<pre><code');
+};
 
+const formatMessageContent = () => {
+  messages.value.forEach(message => {
+    if (isCodeBlock(message.content)) {
+      message.formattedContent = message.content.replace(/<pre><code[^>]*>([\s\S]*?)<\/code><\/pre>/g, (match, p1) => {
+        return `<pre class="code-block"><code>${p1}</code></pre>`;
+      });
+    } else {
+      message.formattedContent = message.content;
+    }
+  });
+};
+
+onMounted(() => {
+  formatMessageContent();
+  scrollToBottom();
+});
+
+onUpdated(() => {
+  formatMessageContent();
+  scrollToBottom();
+});
+
+// 监听消息内容的变化，确保每次变化后重新格式化内容
+watch(messages, () => {
+  nextTick(formatMessageContent);
+}, { deep: true });
+</script>
