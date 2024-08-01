@@ -141,7 +141,7 @@
   align-self: flex-start;
   text-align: left;
   margin-right: 10px;
-  max-width: 80%; /* 限制助手消息的最大宽度 */
+  max-width: 83%; /* 限制助手消息的最大宽度 */
   word-wrap: break-word;
 }
 
@@ -154,6 +154,7 @@
   overflow-x: auto;
   white-space: pre-wrap;
   margin: 5px 0 5px 0;
+  font-family: 'Consolas', monospace;
 }
 
 .chat-input {
