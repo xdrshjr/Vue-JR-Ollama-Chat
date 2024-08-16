@@ -7,7 +7,8 @@ export const API_URLS = {
 export const MODEL_NAME = {
     QWEN: 'qwen2',
     LLAMA31: 'llama3.1:8b',
-    LLAMA31_70: 'llama3.1:70b'
+    LLAMA31_70: 'llama3.1:70b',
+    GEMMA2: 'gemma2:27b'
 };
 
 export function getModelInfo(model_info) {
@@ -20,6 +21,10 @@ export function getModelInfo(model_info) {
     if (model_info === 'Llama3.1-70b') {
         model_url = API_URLS.CHAT_API_4Card_JDQQJR
         model_name = MODEL_NAME.LLAMA31_70
+    }
+    if (model_info === 'gemma2:27b') {
+        model_url = API_URLS.CHAT_API_4Card_JDQQJR
+        model_name = MODEL_NAME.GEMMA2
     }
     return {model_url, model_name};
 }

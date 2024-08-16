@@ -43,6 +43,9 @@
       </el-menu>
     </el-col>
   </el-row>
+  <div class="version-info">
+    <a href="https://vue-jrchat.hk.cpolar.io/home" target="_blank" style="color: #999;">版本号: v1.0.0</a>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -83,5 +86,17 @@ const handleSelect = (key: string, keyPath: string[]) => {
 .el-menu-vertical-demo {
   padding: 0;
   border: none;
+}
+
+.version-info {
+  position: fixed;
+  bottom: 0;
+  left: 100px;
+  transform: translateX(-50%);
+  width: fit-content;
+  padding: 10px;
+  /* background-color: rgba(0, 0, 0, 0.5); */
+  color: #fff;
+  font-size: 15px;
 }
 </style>

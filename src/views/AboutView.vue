@@ -80,28 +80,29 @@
   width: 80vw;
   display: flex;
   flex-direction: column;
+  margin-left: 10rem;
 }
 
 .chat-container {
-  display: flex;
-  flex-direction: column;
-  height: calc(90vh - 8vh);
-  width: 100%;
-  margin: 0;
+display: flex;
+flex-direction: column;
+height: calc(90vh - 8vh);
+width: 100%;
+margin: 0;
 }
 
 .result-box {
-  flex-grow: 1;
-  padding: 10px;
-  background-color: #393838;
-  overflow-y: auto;
-  overflow-x: auto;
+flex-grow: 1;
+padding: 10px;
+background-color: #393838;
+overflow-y: auto;
+overflow-x: auto;
 }
 
 .message-container {
-  display: flex;
-  margin-bottom: 5px;
-  align-items: flex-start; /* 确保消息在开始对齐 */
+display: flex;
+margin-bottom: 5px;
+align-items: flex-start; /* 确保消息在开始对齐 */
 }
 
 .user-message-container {
@@ -230,6 +231,7 @@
     width: 100vw;
     display: flex;
     flex-direction: column;
+    margin-left: 0;
   }
 
   .chat-container {
@@ -283,7 +285,7 @@ const newMessage = ref<string>('');
 
 const resultBox = ref<HTMLElement | null>(null);
 
-const value = ref('Qwen-7b')
+const value = ref('gemma2:27b')
 
 const options = [
   {
@@ -293,6 +295,10 @@ const options = [
   {
     value: 'Llama3.1-70b',
     label: 'Llama3.1-70b',
+  },
+  {
+    value: 'gemma2:27b',
+    label: 'gemma2:27b',
   }
 ]
 

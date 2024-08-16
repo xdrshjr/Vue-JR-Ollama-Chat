@@ -283,7 +283,7 @@ const newMessage = ref<string>('');
 
 const resultBox = ref<HTMLElement | null>(null);
 
-const value = ref('Llama3.1')
+const value = ref('gemma2:27b')
 
 const options = [
   {
@@ -310,7 +310,7 @@ const handleEnter = (event: KeyboardEvent) => {
 
 const callApi = async (message: any, model_url: any, model_name: any) => {
   try {
-    const systemPrompt = "你是一个知识丰富的助手，请帮忙回答用户的问题。当用户以任何方式问你是谁的时候，记住你的名字叫小悬，你的开发团队是JR-AI"; // 系统提示词
+    const systemPrompt = "你是一个知识丰富的助手。"; // 系统提示词
     const filteredMessages = messages.value.filter(m => !(m.content === '等待消息中...'));
     const response = await fetch(model_url, {
       method: 'POST',
@@ -411,7 +411,8 @@ const sendMessage = async () => {
     });
     messages.value.push({ role: 'assistant', content: '等待消息中...', loading: true, progress: 0 });
     let {model_url, model_name} = getModelInfo(value.value);
-    await callApi(userMessage, 'https://qwen72ollama-jr.nas.cpolar.cn/v1/chat/completions', 'write_tutorial');
+    const req_url = 'https://super_writer.hk.cpolar.io/v1/chat/completions'
+    await callApi(userMessage, req_url, 'write_tutorial');
   }
 };
 

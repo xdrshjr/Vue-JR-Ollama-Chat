@@ -164,7 +164,6 @@ nav a:first-of-type {
   }
   .right-section {
     width: calc(100% - 200px);
-    margin-left: 150px;
   }
 
   nav {

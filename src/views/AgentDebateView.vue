@@ -97,6 +97,10 @@ const options = [
   {
     value: 'Llama3.1-70b',
     label: 'Llama3.1-70b',
+  },
+  {
+    value: 'gemma2:27b',
+    label: 'gemma2:27b',
   }
 ]
 
@@ -127,7 +131,9 @@ const callApi = async (message: string) => {
   const req_messages = systemPrompt + message;
 
   try {
-    const response = await fetch('https://debate-agent-jr.nas.cpolar.cn/start_debate', {
+    const req_url = 'https://debate-agent-jr.nas.cpolar.cn/start_debate'
+    // const req_url = 'http://127.0.0.1:5000/start_debate'
+    const response = await fetch(req_url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
