@@ -285,12 +285,16 @@ const newMessage = ref<string>('');
 
 const resultBox = ref<HTMLElement | null>(null);
 
-const value = ref('gemma2:27b')
+const value = ref('gemma2:27b') // Qwen-MAX
 
 const options = [
   {
     value: 'Qwen-7b',
     label: 'Qwen-7b',
+  },
+  {
+    value: 'Qwen-MAX',
+    label: 'Qwen-MAX',
   },
   {
     value: 'Llama3.1-70b',
@@ -316,12 +320,13 @@ const handleEnter = (event: KeyboardEvent) => {
 
 const callApi = async (message: string, model_url: string, model_name: string) => {
   try {
-    const systemPrompt = "你是一个知识丰富的助手，请帮忙回答用户的问题。当用户以任何方式问你是谁的时候，记住你的名字叫小悬，你的开发团队是JR-AI"; // 系统提示词
+    const systemPrompt = "你是一个知识丰富的助手，请帮忙回答用户的问题。当用户以任何方式问你是谁的时候，记住你的名字叫小悬，你的开发团队是JR-AI";
     const filteredMessages = messages.value.filter(m => !(m.role === 'assistant' && m.content === '等待消息中...'));
     const response = await fetch(model_url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Bearer sk-8b00dcc0eabc477f8ccea0f640b3d8bb'
       },
       body: JSON.stringify({
         model: model_name,
@@ -347,14 +352,29 @@ const callApi = async (message: string, model_url: string, model_name: string) =
       for (const jsonObject of jsonObjects) {
         try {
           const responseJson = JSON.parse(jsonObject);
-          if (responseJson.message.role === 'assistant') {
-            partialMessage += responseJson.message.content;
-            messages.value[messages.value.length - 1].content = marked(partialMessage);
-            messages.value[messages.value.length - 1].progress = done ? 100 : messages.value[messages.value.length - 1].progress + 10;
-            await nextTick(() => {
-              formatMessageContent();
-              scrollToBottom();
-            });
+
+          // Check if the model is Qwen-MAX and parse accordingly
+          if (model_name === MODEL_NAME.QWEN_MAX) {
+            const choice = responseJson.choices[0];
+            if (choice && choice.delta) {
+              partialMessage += choice.delta.content || '';
+              messages.value[messages.value.length - 1].content = marked(partialMessage);
+              messages.value[messages.value.length - 1].progress = done ? 100 : messages.value[messages.value.length - 1].progress + 10;
+              await nextTick(() => {
+                formatMessageContent();
+                scrollToBottom();
+              });
+            }
+          } else {
+            if (responseJson.message.role === 'assistant') {
+              partialMessage += responseJson.message.content;
+              messages.value[messages.value.length - 1].content = marked(partialMessage);
+              messages.value[messages.value.length - 1].progress = done ? 100 : messages.value[messages.value.length - 1].progress + 10;
+              await nextTick(() => {
+                formatMessageContent();
+                scrollToBottom();
+              });
+            }
           }
         } catch (e) {
           continue;
@@ -368,7 +388,6 @@ const callApi = async (message: string, model_url: string, model_name: string) =
     console.error('Error fetching data:', error);
   }
 };
-
 const clearMessages = async () => {
   newMessage.value = ''
 };
