@@ -7,6 +7,7 @@
           class="el-menu-vertical-demo"
           default-active="2"
           text-color="#fff"
+          :default-openeds="['6']"
           @open="handleOpen"
           @close="handleClose"
           @select="handleSelect"
@@ -22,6 +23,19 @@
           </el-menu-item-group>
           <el-menu-item-group title="风格转换">
             <el-menu-item index="1-3">风格1</el-menu-item>
+          </el-menu-item-group>
+        </el-sub-menu>
+        <el-sub-menu index="6">
+          <template #title>
+            <el-icon><location /></el-icon>
+            <span>写作助手</span>
+          </template>
+          <el-menu-item-group title="翻译大师">
+            <el-menu-item index="6-1">中-英</el-menu-item>
+            <el-menu-item index="6-2">英-中</el-menu-item>
+          </el-menu-item-group>
+          <el-menu-item-group title="润色大师">
+            <el-menu-item index="6-3">学术论文润色</el-menu-item>
           </el-menu-item-group>
         </el-sub-menu>
         <el-menu-item index="2">
@@ -78,6 +92,12 @@ const handleSelect = (key: string, keyPath: string[]) => {
   }
   if (key === '5') {
     router.push('/agent_debate')
+  }
+  if (key === '6-1') {
+    router.push('/ch_to_en')
+  }
+  if (key === '6-2') {
+    router.push('/en_to_ch')
   }
 }
 </script>

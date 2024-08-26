@@ -22,12 +22,28 @@ const router = createRouter({
       component: () => import('../views/AboutView.vue')
     },
     {
+      path: '/ch_to_en',
+      name: 'TransChToEn',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/TransChToEn.vue')
+    },
+    {
+      path: '/en_to_ch',
+      name: 'TransEnToCh',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/TransEnToCh.vue')
+    },
+    {
       path: '/agent_search',
       name: 'agent_search',
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AgentSearchView.vue')
+      component: () => import('../views/TransChToEn.vue')
     },
     {
       path: '/agent_debate',
