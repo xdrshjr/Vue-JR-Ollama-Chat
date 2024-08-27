@@ -164,6 +164,7 @@ nav a:first-of-type {
   }
   .right-section {
     width: calc(100% - 200px);
+    padding: 0 0 0 135px;
   }
 
   nav {

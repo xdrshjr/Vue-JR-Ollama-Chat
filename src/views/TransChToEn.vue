@@ -81,7 +81,6 @@
   width: 80vw;
   display: flex;
   flex-direction: column;
-  margin-left: 10rem;
 }
 
 .chat-container {
