@@ -35,7 +35,8 @@
             <el-menu-item index="6-2">英-中</el-menu-item>
           </el-menu-item-group>
           <el-menu-item-group title="润色大师">
-            <el-menu-item index="6-3">学术论文润色</el-menu-item>
+            <el-menu-item index="6-3">学术论文润色(中)</el-menu-item>
+            <el-menu-item index="6-4">学术论文润色(英)</el-menu-item>
           </el-menu-item-group>
         </el-sub-menu>
         <el-menu-item index="2">
@@ -98,6 +99,12 @@ const handleSelect = (key: string, keyPath: string[]) => {
   }
   if (key === '6-2') {
     router.push('/en_to_ch')
+  }
+  if (key === '6-3') {
+    router.push('/polishing_ch')
+  }
+  if (key === '6-4') {
+    router.push('/polishing_en')
   }
 }
 </script>

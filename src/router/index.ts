@@ -38,6 +38,22 @@ const router = createRouter({
       component: () => import('../views/TransEnToCh.vue')
     },
     {
+      path: '/polishing_ch',
+      name: 'Polishing_Ch',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/Polishing_Ch.vue')
+    },
+    {
+      path: '/polishing_en',
+      name: 'Polishing_En',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/Polishing_En.vue')
+    },
+    {
       path: '/agent_search',
       name: 'agent_search',
       // route level code-splitting

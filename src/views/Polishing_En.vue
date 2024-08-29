@@ -14,7 +14,8 @@
           />
         </el-select>
         <div class="button-box">
-          <el-button type="primary" class="send-button-clear" @click="clearContext()" color="#626aef">清除上下文</el-button>
+          <el-button type="primary" class="send-button-clear" @click="clearContext()" color="#626aef">清除上下文
+          </el-button>
         </div>
       </el-header>
       <el-main class="el-main-class">
@@ -25,8 +26,8 @@
                 :key="index"
                 :class="['message-container', message.role === 'user' ? 'user-message-container' : 'assistant-message-container']"
             >
-              <img v-if="message.role === 'user'" src="/user.png" class="avatar" />
-              <img v-if="message.role === 'assistant'" src="/robot.png" class="avatar" />
+              <img v-if="message.role === 'user'" src="/user.png" class="avatar"/>
+              <img v-if="message.role === 'assistant'" src="/robot.png" class="avatar"/>
               <div
                   :class="['message', message.role === 'user' ? 'user-message' : 'assistant-message']"
               >
@@ -83,25 +84,25 @@
 }
 
 .chat-container {
-display: flex;
-flex-direction: column;
-height: calc(90vh - 8vh);
-width: 100%;
-margin: 0;
+  display: flex;
+  flex-direction: column;
+  height: calc(90vh - 8vh);
+  width: 100%;
+  margin: 0;
 }
 
 .result-box {
-flex-grow: 1;
-padding: 10px;
-background-color: #393838;
-overflow-y: auto;
-overflow-x: auto;
+  flex-grow: 1;
+  padding: 10px;
+  background-color: #393838;
+  overflow-y: auto;
+  overflow-x: auto;
 }
 
 .message-container {
-display: flex;
-margin-bottom: 5px;
-align-items: flex-start; /* 确保消息在开始对齐 */
+  display: flex;
+  margin-bottom: 5px;
+  align-items: flex-start; /* 确保消息在开始对齐 */
 }
 
 .user-message-container {
@@ -275,11 +276,16 @@ align-items: flex-start; /* 确保消息在开始对齐 */
 </style>
 
 <script lang="ts" setup>
-import { ref, nextTick, onMounted, watch } from 'vue';
-import { marked } from 'marked';
-import { API_URLS, MODEL_NAME, getModelInfo } from '@/assets/config';
+import {ref, nextTick, onMounted, watch} from 'vue';
+import {marked} from 'marked';
+import {API_URLS, MODEL_NAME, getModelInfo} from '@/assets/config';
 
-const messages = ref<any[]>([{ role: 'assistant', content: '你好，我是AI聊天助手小悬，有什么可以帮到你的呢.', loading: false, progress: 0 }]);
+const messages = ref<any[]>([{
+  role: 'assistant',
+  content: '你好，我是一个专业的英文文本润色大师.',
+  loading: false,
+  progress: 0
+}]);
 const newMessage = ref<string>('');
 
 const resultBox = ref<HTMLElement | null>(null);
@@ -291,10 +297,10 @@ const options = [
     value: 'Qwen-7b',
     label: 'Qwen-7b',
   },
-  // {
-  //   value: 'Qwen-MAX',
-  //   label: 'Qwen-MAX',
-  // },
+  {
+    value: 'Qwen-MAX',
+    label: 'Qwen-MAX',
+  },
   {
     value: 'Llama3.1-70b',
     label: 'Llama3.1-70b',
@@ -319,7 +325,10 @@ const handleEnter = (event: KeyboardEvent) => {
 
 const callApi = async (message: string, model_url: string, model_name: string) => {
   try {
-    const systemPrompt = "你是一个知识丰富的助手，请帮忙回答用户的问题。当用户以任何方式问你是谁的时候，记住你的名字叫小悬，你的开发团队是JR-AI";
+    const systemPrompt = "You are a professional English writer, your native language is English, " +
+        "you need to refine the content of the user input, polishing can change the structure of the original sentence, " +
+        "but can not change the original semantic, your polishing must be very professional and accurate. " +
+        "Please rewrite and polish the user input. You should only return the rewritten content, not the rest of the extraneous content.";
     const filteredMessages = messages.value.filter(m => !(m.role === 'assistant' && m.content === '等待消息中...'));
     const response = await fetch(model_url, {
       method: 'POST',
@@ -330,8 +339,8 @@ const callApi = async (message: string, model_url: string, model_name: string) =
       body: JSON.stringify({
         model: model_name,
         messages: [
-          { role: 'system', content: systemPrompt },
-          ...filteredMessages.map(m => ({ role: m.role, content: m.content }))
+          {role: 'system', content: systemPrompt},
+          ...filteredMessages.map(m => ({role: m.role, content: m.content}))
         ],
       }),
       mode: 'cors',
@@ -343,9 +352,9 @@ const callApi = async (message: string, model_url: string, model_name: string) =
     let partialMessage = '';
 
     while (!done) {
-      const { value, done: doneReading } = await reader?.read()!;
+      const {value, done: doneReading} = await reader?.read()!;
       done = doneReading;
-      content += decoder.decode(value, { stream: !done });
+      content += decoder.decode(value, {stream: !done});
 
       const jsonObjects = content.split('\n').filter(str => str.trim() !== '');
       for (const jsonObject of jsonObjects) {
@@ -415,13 +424,13 @@ const clearContext = () => {
 const sendMessage = async () => {
   if (newMessage.value.trim()) {
     const userMessage = escapeHtml(newMessage.value.trim());
-    messages.value.push({ role: 'user', content: marked(userMessage), loading: false, progress: 0 });
+    messages.value.push({role: 'user', content: marked(userMessage), loading: false, progress: 0});
     newMessage.value = '';
     await nextTick(() => {
       formatMessageContent();
       scrollToBottom();
     });
-    messages.value.push({ role: 'assistant', content: '等待消息中...', loading: true, progress: 0 });
+    messages.value.push({role: 'assistant', content: '等待消息中...', loading: true, progress: 0});
     let {model_url, model_name} = getModelInfo(value.value);
     await callApi(userMessage, model_url, model_name);
   }
@@ -461,5 +470,5 @@ onMounted(() => {
 // 监听消息内容的变化，确保每次变化后重新格式化内容
 watch(messages, () => {
   nextTick(formatMessageContent);
-}, { deep: true });
+}, {deep: true});
 </script>
