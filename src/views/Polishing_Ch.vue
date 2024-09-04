@@ -3,7 +3,7 @@
     <el-container>
       <el-header class="options-header">
         <div style="margin-right: 10px">
-          <p>模型选择:</p>
+          <p>{{ $t('model_switch') }}</p>
         </div>
         <el-select v-model="value" placeholder="Select" style="width: 200px; margin-right: 10px">
           <el-option

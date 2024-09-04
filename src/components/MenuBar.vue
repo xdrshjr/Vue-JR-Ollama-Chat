@@ -27,12 +27,12 @@ defineProps<{
           src="/logo.png"
           alt="Element logo"
       />
-      <p style="font-size: 18px; margin-left: 5px">小悬AI</p>
+      <p style="font-size: 18px; margin-left: 5px">{{ $t('app_name') }}</p>
     </el-menu-item>
     <div class="flex-grow" />
-    <el-menu-item index="1">AI工具</el-menu-item>
+    <el-menu-item index="1">{{ $t('ai_tools') }}</el-menu-item>
     <el-sub-menu index="2">
-      <template #title>个人中心</template>
+      <template #title>{{ $t('user_info') }}</template>
       <el-menu-item index="2-1">开发中</el-menu-item>
       <el-menu-item index="2-2">开发中</el-menu-item>
       <el-menu-item index="2-3">开发中</el-menu-item>

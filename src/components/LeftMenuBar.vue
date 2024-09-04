@@ -12,19 +12,20 @@
           @close="handleClose"
           @select="handleSelect"
       >
-        <el-sub-menu index="1">
-          <template #title>
-            <el-icon><location /></el-icon>
-            <span>AI画图</span>
-          </template>
-          <el-menu-item-group title="动漫画图">
-            <el-menu-item index="1-1">动漫1</el-menu-item>
-            <el-menu-item index="1-2">动漫2</el-menu-item>
-          </el-menu-item-group>
-          <el-menu-item-group title="风格转换">
-            <el-menu-item index="1-3">风格1</el-menu-item>
-          </el-menu-item-group>
-        </el-sub-menu>
+<!--        <el-sub-menu index="1">-->
+<!--          <template #title>-->
+<!--            <el-icon><location /></el-icon>-->
+<!--            <span>AI画图</span>-->
+<!--          </template>-->
+<!--          <el-menu-item-group title="动漫画图">-->
+<!--            <el-menu-item index="1-1">动漫1</el-menu-item>-->
+<!--            <el-menu-item index="1-2">动漫2</el-menu-item>-->
+<!--          </el-menu-item-group>-->
+<!--          <el-menu-item-group title="风格转换">-->
+<!--            <el-menu-item index="1-3">风格1</el-menu-item>-->
+<!--          </el-menu-item-group>-->
+<!--        </el-sub-menu>-->
+
         <el-sub-menu index="6">
           <template #title>
             <el-icon><location /></el-icon>
@@ -39,10 +40,12 @@
             <el-menu-item index="6-4">学术论文润色(英)</el-menu-item>
           </el-menu-item-group>
         </el-sub-menu>
+
         <el-menu-item index="2">
           <el-icon><icon-menu /></el-icon>
-          <span>聊天助手（本地）</span>
+          <span>{{$t('chat_assistant')}}</span>
         </el-menu-item>
+
         <el-menu-item index="4">
           <el-icon><icon-menu /></el-icon>
           <span>超级写作Agent</span>
@@ -50,20 +53,22 @@
         <el-menu-item index="7">
           <el-icon><icon-menu /></el-icon>
           <span>学术PDF转换助手</span>
+<!--        </el-menu-item>-->
+<!--        <el-menu-item index="5" disabled>-->
+<!--          <el-icon><icon-menu /></el-icon>-->
+<!--          <span>辩论Agent</span>-->
         </el-menu-item>
-        <el-menu-item index="5" disabled>
-          <el-icon><icon-menu /></el-icon>
-          <span>辩论Agent</span>
-        </el-menu-item>
+
         <el-menu-item index="3">
           <el-icon><icon-menu /></el-icon>
-          <span>关于我们</span>
+          <span>{{$t('about_us')}}</span>
         </el-menu-item>
       </el-menu>
     </el-col>
   </el-row>
   <div class="version-info">
-    <a href="https://vue-jrchat.hk.cpolar.io/home" target="_blank" style="color: #999;">版本号: v1.0.0</a>
+    <LanguageSwitcher />
+    <a href="https://vue-jrchat.hk.cpolar.io/home" target="_blank" style="color: #999;">{{ $t('band_version') }}</a>
   </div>
 </template>
 
@@ -75,6 +80,7 @@ import {
   Setting,
 } from '@element-plus/icons-vue'
 import {useRouter} from "vue-router";
+import LanguageSwitcher from "@/components/LanguageSwitcher.vue";
 const handleOpen = (key: string, keyPath: string[]) => {
   console.log(key, keyPath)
 }
@@ -125,7 +131,7 @@ const handleSelect = (key: string, keyPath: string[]) => {
 .version-info {
   position: fixed;
   bottom: 0;
-  left: 100px;
+  left: 80px;
   transform: translateX(-50%);
   width: fit-content;
   padding: 10px;

@@ -1,0 +1,15 @@
+{
+  "greeting": "Hello, what can i help you?",
+  "app_name": " Evil Mentor Attack AI Simulation ",
+  "ai_tools": "AI Tools",
+  "user_info": "User Info",
+  "model_switch": "Model Select:",
+  "clear_context": "Clear Context",
+  "band_version": "v1.0.0",
+  "send_button": "Send",
+  "clear_button": "Clear",
+  "write_assistant": "Write Assist",
+  "chat_assistant": "Chat Assistant（Ollama）",
+  "about_us": "About us",
+  "place_hold_input": "Please input your question."
+}

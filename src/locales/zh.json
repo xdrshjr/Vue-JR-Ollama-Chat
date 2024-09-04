@@ -1,0 +1,15 @@
+{
+  "greeting": "你好，我是AI聊天助手小悬，有什么可以帮到你的呢.",
+  "app_name": "小悬AI",
+  "ai_tools": "AI 工具",
+  "user_info": "用户中心",
+  "model_switch": "模型选择:",
+  "clear_context": "清除上下文",
+  "band_version": "版本号: v1.0.0",
+  "send_button": "发送",
+  "clear_button": "清除",
+  "write_assistant": "写作助手",
+  "chat_assistant": "聊天助手（本地）",
+  "about_us": "关于我们",
+  "place_hold_input": "请输入您的问题"
+}

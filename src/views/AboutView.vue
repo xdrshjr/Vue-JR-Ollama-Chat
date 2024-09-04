@@ -3,7 +3,7 @@
     <el-container>
       <el-header class="options-header">
         <div style="margin-right: 10px">
-          <p>模型选择:</p>
+          <p>{{ $t('model_switch') }}</p>
         </div>
         <el-select v-model="value" placeholder="Select" style="width: 200px; margin-right: 10px">
           <el-option
@@ -14,7 +14,7 @@
           />
         </el-select>
         <div class="button-box">
-          <el-button type="primary" class="send-button-clear" @click="clearContext()" color="#626aef">清除上下文</el-button>
+          <el-button type="primary" class="send-button-clear" @click="clearContext()" color="#626aef"><p>{{ $t('clear_context') }}</p></el-button>
         </div>
       </el-header>
       <el-main class="el-main-class">
@@ -39,7 +39,7 @@
                 v-model="newMessage"
                 maxlength="20000"
                 class="input-box"
-                placeholder="请输入您的问题"
+                placeholder="Please input your question."
                 show-word-limit
                 type="text"
                 resize="none"
@@ -48,8 +48,8 @@
                 @keydown.shift.enter.native.prevent="insertNewLine"
             />
             <div class="button-box">
-              <el-button type="primary" class="send-button" @click="sendMessage" color="#626aef">发送</el-button>
-              <el-button type="primary" class="clear-button" @click="clearMessages" color="#626aef">清除</el-button>
+              <el-button type="primary" class="send-button" @click="sendMessage" color="#626aef">{{ $t('send_button') }}</el-button>
+              <el-button type="primary" class="clear-button" @click="clearMessages" color="#626aef">{{ $t('clear_button') }}</el-button>
             </div>
           </div>
         </div>
@@ -278,8 +278,8 @@ align-items: flex-start; /* 确保消息在开始对齐 */
 import { ref, nextTick, onMounted, watch } from 'vue';
 import { marked } from 'marked';
 import { API_URLS, MODEL_NAME, getModelInfo } from '@/assets/config';
-
-const messages = ref<any[]>([{ role: 'assistant', content: '你好，我是AI聊天助手小悬，有什么可以帮到你的呢.', loading: false, progress: 0 }]);
+const greeting_info = 'Hello, what can i help you?'
+const messages = ref<any[]>([{ role: 'assistant', content: greeting_info, loading: false, progress: 0 }]);
 const newMessage = ref<string>('');
 
 const resultBox = ref<HTMLElement | null>(null);
