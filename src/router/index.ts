@@ -68,6 +68,14 @@ const router = createRouter({
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import('../views/AgentDebateView.vue')
+    },
+    {
+      path: '/pdf_translator',
+      name: 'pdf_translator',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/PdfTrans.vue')
     }
   ]
 })

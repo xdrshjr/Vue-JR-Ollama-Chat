@@ -43,13 +43,17 @@
           <el-icon><icon-menu /></el-icon>
           <span>聊天助手（本地）</span>
         </el-menu-item>
-        <el-menu-item index="5" disabled>
-          <el-icon><icon-menu /></el-icon>
-          <span>辩论Agent</span>
-        </el-menu-item>
         <el-menu-item index="4">
           <el-icon><icon-menu /></el-icon>
           <span>超级写作Agent</span>
+        </el-menu-item>
+        <el-menu-item index="7">
+          <el-icon><icon-menu /></el-icon>
+          <span>学术PDF转换助手</span>
+        </el-menu-item>
+        <el-menu-item index="5" disabled>
+          <el-icon><icon-menu /></el-icon>
+          <span>辩论Agent</span>
         </el-menu-item>
         <el-menu-item index="3">
           <el-icon><icon-menu /></el-icon>
@@ -105,6 +109,9 @@ const handleSelect = (key: string, keyPath: string[]) => {
   }
   if (key === '6-4') {
     router.push('/polishing_en')
+  }
+  if (key === '7') {
+    router.push('/pdf_translator')
   }
 }
 </script>
