@@ -14,7 +14,9 @@
           />
         </el-select>
         <div class="button-box">
-          <el-button type="primary" class="send-button-clear" @click="clearContext()" color="#626aef"><p>{{ $t('clear_context') }}</p></el-button>
+          <el-button type="primary" class="send-button-clear" @click="clearContext()" color="#626aef">
+            <p>{{ $t('clear_context') }}</p>
+          </el-button>
         </div>
       </el-header>
       <el-main class="el-main-class">
@@ -25,13 +27,32 @@
                 :key="index"
                 :class="['message-container', message.role === 'user' ? 'user-message-container' : 'assistant-message-container']"
             >
-              <img v-if="message.role === 'user'" src="/user.png" class="avatar" />
-              <img v-if="message.role === 'assistant'" src="/robot.png" class="avatar" />
+              <img v-if="message.role === 'user'" src="/user.png" class="avatar"/>
+              <img v-if="message.role === 'assistant'" src="/robot.png" class="avatar"/>
               <div
                   :class="['message', message.role === 'user' ? 'user-message' : 'assistant-message']"
               >
                 <span v-html="message.formattedContent"></span>
               </div>
+              <el-button
+                  v-if="message.role === 'assistant' && !message.loading"
+                  @click="playAudio(message.formattedContent)"
+                  circle
+                  class="play-button"
+                  style="margin-left: 2px;"
+              >
+                <el-icon>
+                  <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      width="24px"
+                      height="24px"
+                  >
+                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.06c1.48-.74 2.5-2.26 2.5-4.03zM14 3.23v2.06c3.39.49 6 3.39 6 6.71s-2.61 6.22-6 6.71v2.06c4.01-.52 7-3.92 7-8.77s-2.99-8.25-7-8.77z"/>
+                  </svg>
+                </el-icon>
+              </el-button>
             </div>
           </div>
           <div class="chat-input">
@@ -48,8 +69,12 @@
                 @keydown.shift.enter.native.prevent="insertNewLine"
             />
             <div class="button-box">
-              <el-button type="primary" class="send-button" @click="sendMessage" color="#626aef">{{ $t('send_button') }}</el-button>
-              <el-button type="primary" class="clear-button" @click="clearMessages" color="#626aef">{{ $t('clear_button') }}</el-button>
+              <el-button type="primary" class="send-button" @click="sendMessage" color="#626aef">
+                {{ $t('send_button') }}
+              </el-button>
+              <el-button type="primary" class="clear-button" @click="clearMessages" color="#626aef">
+                {{ $t('clear_button') }}
+              </el-button>
             </div>
           </div>
         </div>
@@ -59,6 +84,13 @@
 </template>
 
 <style scoped>
+.play-button {
+  margin-left: 2px;
+  margin-bottom: 5px;
+  align-self: flex-end;
+  transform: scale(0.6);
+}
+
 .el-main-class {
   padding: 0;
   margin-top: 80px; /* 根据实际高度调整 */
@@ -83,25 +115,25 @@
 }
 
 .chat-container {
-display: flex;
-flex-direction: column;
-height: calc(90vh - 8vh);
-width: 100%;
-margin: 0;
+  display: flex;
+  flex-direction: column;
+  height: calc(90vh - 8vh);
+  width: 100%;
+  margin: 0;
 }
 
 .result-box {
-flex-grow: 1;
-padding: 10px;
-background-color: #393838;
-overflow-y: auto;
-overflow-x: auto;
+  flex-grow: 1;
+  padding: 10px;
+  background-color: #393838;
+  overflow-y: auto;
+  overflow-x: auto;
 }
 
 .message-container {
-display: flex;
-margin-bottom: 5px;
-align-items: flex-start; /* 确保消息在开始对齐 */
+  display: flex;
+  margin-bottom: 5px;
+  align-items: flex-start; /* 确保消息在开始对齐 */
 }
 
 .user-message-container {
@@ -275,11 +307,12 @@ align-items: flex-start; /* 确保消息在开始对齐 */
 </style>
 
 <script lang="ts" setup>
-import { ref, nextTick, onMounted, watch } from 'vue';
-import { marked } from 'marked';
-import { API_URLS, MODEL_NAME, getModelInfo } from '@/assets/config';
-const greeting_info = 'Hello, what can i help you?'
-const messages = ref<any[]>([{ role: 'assistant', content: greeting_info, loading: false, progress: 0 }]);
+import {ref, nextTick, onMounted, watch} from 'vue';
+import {marked} from 'marked';
+import {API_URLS, MODEL_NAME, getModelInfo} from '@/assets/config';
+
+const greeting_info = '你好，我是你的聊天助手，请问有什么可以帮助你的吗？'
+const messages = ref<any[]>([{role: 'assistant', content: greeting_info, loading: false, progress: 0}]);
 const newMessage = ref<string>('');
 
 const resultBox = ref<HTMLElement | null>(null);
@@ -330,8 +363,8 @@ const callApi = async (message: string, model_url: string, model_name: string) =
       body: JSON.stringify({
         model: model_name,
         messages: [
-          { role: 'system', content: systemPrompt },
-          ...filteredMessages.map(m => ({ role: m.role, content: m.content }))
+          {role: 'system', content: systemPrompt},
+          ...filteredMessages.map(m => ({role: m.role, content: m.content}))
         ],
       }),
       mode: 'cors',
@@ -343,16 +376,15 @@ const callApi = async (message: string, model_url: string, model_name: string) =
     let partialMessage = '';
 
     while (!done) {
-      const { value, done: doneReading } = await reader?.read()!;
+      const {value, done: doneReading} = await reader?.read()!;
       done = doneReading;
-      content += decoder.decode(value, { stream: !done });
+      content += decoder.decode(value, {stream: !done});
 
       const jsonObjects = content.split('\n').filter(str => str.trim() !== '');
       for (const jsonObject of jsonObjects) {
         try {
           const responseJson = JSON.parse(jsonObject);
 
-          // Check if the model is Qwen-MAX and parse accordingly
           if (model_name === MODEL_NAME.QWEN_MAX) {
             const choice = responseJson.choices[0];
             if (choice && choice.delta) {
@@ -382,11 +414,12 @@ const callApi = async (message: string, model_url: string, model_name: string) =
       content = '';
     }
 
-    messages.value[messages.value.length - 1].loading = false;
+    messages.value[messages.value.length - 1].loading = false; // Set loading to false when done
   } catch (error) {
     console.error('Error fetching data:', error);
   }
 };
+
 const clearMessages = async () => {
   newMessage.value = ''
 };
@@ -415,13 +448,13 @@ const clearContext = () => {
 const sendMessage = async () => {
   if (newMessage.value.trim()) {
     const userMessage = escapeHtml(newMessage.value.trim());
-    messages.value.push({ role: 'user', content: marked(userMessage), loading: false, progress: 0 });
+    messages.value.push({role: 'user', content: marked(userMessage), loading: false, progress: 0});
     newMessage.value = '';
     await nextTick(() => {
       formatMessageContent();
       scrollToBottom();
     });
-    messages.value.push({ role: 'assistant', content: '等待消息中...', loading: true, progress: 0 });
+    messages.value.push({role: 'assistant', content: '等待消息中...', loading: true, progress: 0});
     let {model_url, model_name} = getModelInfo(value.value);
     await callApi(userMessage, model_url, model_name);
   }
@@ -453,6 +486,96 @@ const formatMessageContent = () => {
   });
 };
 
+const playAudio = async (content: string) => {
+  console.log("Button pressed");
+  let sanitizedContent = content.replace(/<[^>]*>/g, '');
+  let qwenResponse = sanitizedContent.replace(/\n-/g, "，")
+      .replace(/ - /g, '，')
+      .replace(/--/g, '，')
+      .replace(/---/g, '，')
+      .replace(/\*/g, '，')
+      .replace(/#/g, '，');
+  const dingzhen_voice_text = '大家好我是丁真，很高兴作为奥运一夏，的活动发起官，为奥运助力一下。'
+  const standard_voice_text = '该实验室致力于提供最优秀的性能体验。在核心性能、通信和AI这三个领域进行了深入研究，并通过百名工程师团队的共同合作，在底层进行技术合作。'
+  const response = await fetch('https://cosyvoice-xdrshjr.nas.cpolar.cn/inference/stream', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      query: qwenResponse,
+      prompt_text: dingzhen_voice_text,
+      prompt_speech: "audio_dingzhen_dingzhen_61.wav"
+    })
+  });
+
+  const reader = response.body.getReader();
+  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  const sampleRate = 22050;
+  let bufferSize = sampleRate / 2; // Adjust buffer size as needed (0.5 seconds buffer)
+  let audioBufferQueue = [];
+  let source;
+  let isPlaying = false;
+  let leftover = new Uint8Array(0);
+
+  function processBuffer() {
+    if (isPlaying || !audioBufferQueue.length) return;
+    console.log("processBuffer() enter");
+
+    const tmpBufQueue = audioBufferQueue;
+    audioBufferQueue = [];
+    const totalLength = tmpBufQueue.reduce((acc, chunk) => acc + chunk.length, 0);
+    console.log("total length: ", totalLength);
+    const audioBuffer = audioContext.createBuffer(1, totalLength, sampleRate);
+    const combinedArray = new Float32Array(totalLength);
+
+    let offset = 0;
+    while (tmpBufQueue.length) {
+      const chunk = tmpBufQueue.shift();
+      combinedArray.set(chunk, offset);
+      offset += chunk.length;
+    }
+
+    audioBuffer.copyToChannel(combinedArray, 0);
+
+    source = audioContext.createBufferSource();
+    source.buffer = audioBuffer;
+    source.connect(audioContext.destination);
+    source.onended = () => {
+      isPlaying = false;
+      if (audioBufferQueue.length > 0) {
+        processBuffer();
+      }
+    };
+    source.start();
+    isPlaying = true;
+  }
+
+  while (true) {
+    const {done, value} = await reader.read();
+    if (done) break;
+
+    // Combine leftover with new data
+    const combinedValue = new Uint8Array(leftover.length + value.length);
+    combinedValue.set(leftover);
+    combinedValue.set(value, leftover.length);
+
+    const byteLength = combinedValue.byteLength;
+    const remainder = byteLength % 4;
+    const validLength = byteLength - remainder;
+
+    // Separate valid data and leftover
+    const validData = combinedValue.slice(0, validLength);
+    leftover = combinedValue.slice(validLength);
+
+    const float32Array = new Float32Array(validData.buffer);
+    audioBufferQueue.push(float32Array);
+
+    // Process buffer if enough data is collected
+    processBuffer();
+  }
+}
+
 onMounted(() => {
   formatMessageContent();
   scrollToBottom();
@@ -461,5 +584,5 @@ onMounted(() => {
 // 监听消息内容的变化，确保每次变化后重新格式化内容
 watch(messages, () => {
   nextTick(formatMessageContent);
-}, { deep: true });
+}, {deep: true});
 </script>
