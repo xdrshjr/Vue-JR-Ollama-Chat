@@ -13,6 +13,9 @@ export default {
     switchLanguage(locale) {
       this.$i18n.locale = locale;
     }
+  },
+  mounted() {
+    this.$i18n.locale = 'zh';
   }
 }
 </script>
