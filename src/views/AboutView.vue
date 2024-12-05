@@ -317,17 +317,17 @@ const newMessage = ref<string>('');
 
 const resultBox = ref<HTMLElement | null>(null);
 
-const value = ref('gemma2:27b') // Qwen-MAX
+const value = ref('Qwen-MAX') // Qwen-MAX
 
 const options = [
   {
     value: 'Qwen-7b',
     label: 'Qwen-7b',
   },
-  // {
-  //   value: 'Qwen-MAX',
-  //   label: 'Qwen-MAX',
-  // },
+  {
+    value: 'Qwen-MAX',
+    label: 'Qwen-MAX',
+  },
   {
     value: 'Llama3.1-70b',
     label: 'Llama3.1-70b',

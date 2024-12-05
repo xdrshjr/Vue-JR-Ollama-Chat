@@ -1,8 +1,8 @@
 export const API_URLS = {
-    CHAT_API_4Card: 'https://ollama-chat.hk.cpolar.io/api/chat',
-    CHAT_API_4Card_JDQQJR: 'https://llama31-chat-jr.nas.cpolar.cn/api/chat',
-    CHAT_API_xdrshjr: 'http://ollama-qwen-xdrshjr.vip.cpolar.top/api/chat',
-    CHAT_API_QWEN_MAX: 'https://qwen-max-chat.hk.cpolar.io/ask'
+    CHAT_API_4Card: 'https://ollama-chat.hk.cpolar.io/test/chat',
+    CHAT_API_4Card_JDQQJR: 'https://llama31-chat-jr.nas.cpolar.cn/test/chat',
+    CHAT_API_xdrshjr: 'http://ollama-qwen-xdrshjr.vip.cpolar.top/test/chat',
+    CHAT_API_QWEN_MAX: 'https://qwen-max-chat.hk.cpolar.io/test/ask'
 };
 
 export const MODEL_NAME = {
