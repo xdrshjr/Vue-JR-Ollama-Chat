@@ -1,6 +1,7 @@
 # JR-AIchat
 
-This template should help get you started developing with Vue 3 in Vite.
+一个由Vue3开发的，聊天客户端项目。对接Ollama，以及OpenAI的聊天API。
+A chat client project developed using Vue 3, integrating with both Ollama and OpenAI chat APIs.
 
 ## Recommended IDE Setup
 
